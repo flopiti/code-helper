@@ -56,7 +56,7 @@ async function processResources(projectPath:any) {
                 restMethods: restMethods
             };
         }));
-
+        return resources;
         console.log('All Resources:', JSON.stringify(resources, null, 2));
     } catch (error) {
         console.error('Error processing resources:', error);
@@ -64,4 +64,85 @@ async function processResources(projectPath:any) {
 }
 
 const projectPath = '/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff';
-processResources(projectPath);
+processResources(projectPath).then((resources:any) => {
+    console.log('All Resources:', JSON.stringify(resources, null, 2));
+    buildRestCall('GET', resources[0].name, { description: 'one' }, resources[0].files[1]);
+
+}
+
+);
+
+
+interface Options {
+    description: 'all' | 'one';
+  }
+  
+function buildRestCall(method: 'GET' | 'POST' | 'DELETE', resource: string, options: Options, controllerFile:any): void {
+  
+    if (method === 'GET' && options.description === 'all') {
+    //   addGetAllRequest(controllerFile, resource);
+    }
+  
+    if (method === 'GET' && options.description === 'one') {
+      addGetOneRequest(controllerFile, resource);
+    }
+  
+    if (method === 'POST' && options.description === 'one') {
+    //   addPostOneRequest(controllerFile, resource);
+    }
+  
+    if (method === 'DELETE' && options.description === 'one') {
+    //   addDeleteOneRequest(controllerFile, resource);
+    }
+  }
+  
+  function addGetOneRequest(controllerFile: string, resource: string): void {
+    const MOCK_CODE = `
+      @GetMapping("/{id}")
+      public ResponseEntity<${resource}> get${resource}ById(@PathVariable Long id) {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+      }
+    `;
+
+    console.log(resource)
+    const CODE_READY = MOCK_CODE.replace('resource', resource);
+    
+    console.log('CODE_READY:', CODE_READY);
+
+    console.log('Controller File:', controllerFile)
+    const lineToAdd = findLineToAddGetOneRequest(controllerFile);
+    console.log('Line to add:', lineToAdd);
+
+    addToFile(controllerFile, lineToAdd, CODE_READY);
+
+
+  }
+  
+
+  import { readFileSync, writeFileSync } from 'fs';
+
+function findLineToAddGetOneRequest(filePath: string): number {
+  const fileContent = readFileSync(projectPath+filePath, 'utf8');
+  const lines = fileContent.split('\n');
+  const pattern = '@PostMapping';
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes(pattern)) {
+      return i; 
+    }
+  }
+  return -1;
+}
+
+function addToFile(filePath: string, line: number, text: string): void {
+    const fileContent = readFileSync(projectPath+filePath, 'utf8');
+    const lines = fileContent.split('\n');
+  
+    // Adjust for 0-indexed array; insert the new content just before the specified line
+    lines.splice(line - 1, 0, text);
+  
+    // Join the array back into a single string with new lines and write it back to the file
+    const updatedContent = lines.join('\n');
+    writeFileSync(projectPath+filePath, updatedContent, 'utf8');
+  }
+
