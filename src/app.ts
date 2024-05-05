@@ -2,12 +2,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { readFileSync, writeFileSync } from 'fs';
 import express from 'express';
-
-
 const app = express();
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.json()); 
 
-// Define a route for your demo request
 app.get('/addGetOne', (req, res) => {
       processResources(projectPath).then((resources:any) => {
         console.log('All Resources:', JSON.stringify(resources, null, 2));
