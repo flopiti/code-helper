@@ -5,13 +5,20 @@ import express from 'express';
 const app = express();
 app.use(express.json()); 
 
-app.get('/addGetOne', (req, res) => {
+app.get('/add-request', (req, res) => {
       processResources(projectPath).then((resources:any) => {
         console.log('All Resources:', JSON.stringify(resources, null, 2));
         buildRestCall('GET', resources[0].name, { description: 'one' }, resources[0].files[1])
         });
   res.status(200).json({ message: 'received' });
 });
+
+app.get('/create-new-resource/:id', (req, res) => {
+    const id = req.params.id;
+    createNewResource(projectPath, id);
+    res.status(200).json({ message: 'received' });
+}
+);
 
 const PORT = process.env.PORT || 1234;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
@@ -76,6 +83,17 @@ async function processResources(projectPath:any) {
         console.log('All Resources:', JSON.stringify(resources, null, 2));
     } catch (error) {
         console.error('Error processing resources:', error);
+    }
+}
+
+async function createNewResource(projectPath:any, resourceName:string) {
+    try {
+        console.log('here')
+        const resourcePath = path.join(projectPath, '/src/main/java/com/natetrystuff/', resourceName);
+        await fs.mkdir(resourcePath, { recursive: true });
+        console.log('New resource folder created at:', resourcePath);
+    } catch (error) {
+        console.error('Error creating new resource folder:', error);
     }
 }
 
