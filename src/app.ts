@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { readFileSync, writeFileSync } from 'fs';
 
 async function getAllFiles(dirPath:any, arrayOfFiles : any[]= []) {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
@@ -72,7 +73,6 @@ processResources(projectPath).then((resources:any) => {
 
 );
 
-
 interface Options {
     description: 'all' | 'one';
   }
@@ -96,30 +96,27 @@ function buildRestCall(method: 'GET' | 'POST' | 'DELETE', resource: string, opti
     }
   }
   
-  function addGetOneRequest(controllerFile: string, resource: string): void {
-    const MOCK_CODE = `
-      @GetMapping("/{id}")
-      public ResponseEntity<${resource}> get${resource}ById(@PathVariable Long id) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-      }
-    `;
+function addGetOneRequest(controllerFile: string, resource: string): void {
+const MOCK_CODE = `
+    @GetMapping("/{id}")
+    public ResponseEntity<${resource}> get${resource}ById(@PathVariable Long id) {
+    return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    }
+`;
 
-    console.log(resource)
-    const CODE_READY = MOCK_CODE.replace('resource', resource);
-    
-    console.log('CODE_READY:', CODE_READY);
+console.log(resource)
+const CODE_READY = MOCK_CODE.replace('resource', resource);
 
-    console.log('Controller File:', controllerFile)
-    const lineToAdd = findLineToAddGetOneRequest(controllerFile);
-    console.log('Line to add:', lineToAdd);
+console.log('CODE_READY:', CODE_READY);
 
-    addToFile(controllerFile, lineToAdd, CODE_READY);
+console.log('Controller File:', controllerFile)
+const lineToAdd = findLineToAddGetOneRequest(controllerFile);
+console.log('Line to add:', lineToAdd);
+
+addToFile(controllerFile, lineToAdd, CODE_READY);
 
 
-  }
-  
-
-  import { readFileSync, writeFileSync } from 'fs';
+}
 
 function findLineToAddGetOneRequest(filePath: string): number {
   const fileContent = readFileSync(projectPath+filePath, 'utf8');
