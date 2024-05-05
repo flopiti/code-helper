@@ -23,7 +23,6 @@ app.get('/create-new-resource/:id', (req, res) => {
 const PORT = process.env.PORT || 1234;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-
 async function getAllFiles(dirPath:any, arrayOfFiles : any[]= []) {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
     for (let entry of entries) {
