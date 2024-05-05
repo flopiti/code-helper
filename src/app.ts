@@ -1,6 +1,24 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { readFileSync, writeFileSync } from 'fs';
+import express from 'express';
+
+
+const app = express();
+app.use(express.json()); // Middleware to parse JSON bodies
+
+// Define a route for your demo request
+app.get('/addGetOne', (req, res) => {
+      processResources(projectPath).then((resources:any) => {
+        console.log('All Resources:', JSON.stringify(resources, null, 2));
+        buildRestCall('GET', resources[0].name, { description: 'one' }, resources[0].files[1])
+        });
+  res.status(200).json({ message: 'received' });
+});
+
+const PORT = process.env.PORT || 1234;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 
 async function getAllFiles(dirPath:any, arrayOfFiles : any[]= []) {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
@@ -63,15 +81,6 @@ async function processResources(projectPath:any) {
         console.error('Error processing resources:', error);
     }
 }
-
-const projectPath = '/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff';
-processResources(projectPath).then((resources:any) => {
-    console.log('All Resources:', JSON.stringify(resources, null, 2));
-    buildRestCall('GET', resources[0].name, { description: 'one' }, resources[0].files[1]);
-
-}
-
-);
 
 interface Options {
     description: 'all' | 'one';
@@ -143,3 +152,4 @@ function addToFile(filePath: string, line: number, text: string): void {
     writeFileSync(projectPath+filePath, updatedContent, 'utf8');
   }
 
+  const projectPath = '/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff';
