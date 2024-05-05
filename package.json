@@ -4,12 +4,17 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec ts-node ./src/app.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "chokidar": "^3.6.0"
-  }
-}
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.8",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2"
+  }}
