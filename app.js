@@ -1,18 +1,67 @@
-const fs = require('fs');
+const fs = require('fs/promises');
+const path = require('path');
 
-// Define the file path
-const filePath = '/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff/src/main/java/com/natetrystuff/Meal/MealController.java'; // Update this to your actual file path
-
-console.log(`Waiting 15 seconds before appending text to ${filePath}...`);
-
-// Schedule appending text 15 seconds after script starts
-setTimeout(() => {
-    console.log('Appending text now...');
-    fs.appendFile(filePath, '\nshiverrish', 'utf8', (err) => {
-        if (err) {
-            console.error('Error appending to file:', err);
+async function getAllFiles(dirPath, arrayOfFiles = []) {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    for (let entry of entries) {
+        const fullPath = path.join(dirPath, entry.name);
+        if (entry.isDirectory()) {
+            arrayOfFiles = await getAllFiles(fullPath, arrayOfFiles);
         } else {
-            console.log('Successfully added "shiverrish" to the end of the file');
+            arrayOfFiles.push(fullPath);
         }
+    }
+    return arrayOfFiles;
+}
+
+async function processResources(projectPath) {
+    try {
+        const files = await getAllFiles(projectPath);
+        const cleanedFiles = files.map((file) => file.replace(projectPath, ''));
+        const uniqueFolders = [...new Set(cleanedFiles
+            .filter(file => file.startsWith('/src/main/java/com/natetrystuff/'))
+            .map(file => {
+                const match = file.match(/^\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/);
+                return match ? match[1] : null;
+            })
+
+        )].filter(Boolean).filter((value)=>{
+        const isFile = value.includes('.');
+        if(isFile){
+            return false;
+        }
+        return true;
     });
-}, 4000); // 15000 milliseconds = 15 seconds
+
+        const resources = await Promise.all(uniqueFolders.map(async folder => {
+            const resourceFiles = cleanedFiles.filter(file => file.startsWith(`/src/main/java/com/natetrystuff/${folder}/`));
+            const controllerFile = resourceFiles.find(file => file.endsWith('Controller.java'));
+
+            let restMethods = [];
+            if (controllerFile) {
+                const data = await fs.readFile(projectPath + controllerFile, 'utf8');
+                restMethods = data.match(/@[A-Za-z]+Mapping(\("[^"]*"\))?/g).filter(restCall => {
+                    if(restCall.includes('RequestMapping')){
+                        console.log('removing', restCall)
+                        return false;
+                    }
+                    return true;
+                })
+                .filter(Boolean);
+            }
+
+            return {
+                name: folder,
+                files: resourceFiles,
+                restMethods: restMethods
+            };
+        }));
+
+        console.log('All Resources:', JSON.stringify(resources, null, 2));
+    } catch (error) {
+        console.error('Error processing resources:', error);
+    }
+}
+
+const projectPath = '/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff';
+processResources(projectPath);
