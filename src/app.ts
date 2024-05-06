@@ -119,6 +119,155 @@ public class ${resourceName} {
     }
 }
 
+async function createServiceFile(resourcePath:any, resourceName:any) {
+    const content = `
+package com.natetrystuff.${resourceName};
+
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class ${resourceName}Service {
+
+    private final ${resourceName}Repository ${resourceName.toLowerCase()}Repository;
+
+    public ${resourceName}Service(${resourceName}Repository ${resourceName.toLowerCase()}Repository) {
+        this.${resourceName.toLowerCase()}Repository = ${resourceName.toLowerCase()}Repository;
+    }
+
+    public List<${resourceName}> listAll${resourceName}s() {
+        return ${resourceName.toLowerCase()}Repository.findAll();
+    }
+
+    public ${resourceName} get${resourceName}ById(Long id) {
+        return ${resourceName.toLowerCase()}Repository.findById(id).orElse(null);
+    }
+
+    public ${resourceName} create${resourceName}(${resourceName} ${resourceName.toLowerCase()}) {
+        return ${resourceName.toLowerCase()}Repository.save(${resourceName.toLowerCase()});
+    }
+
+    public ${resourceName} update${resourceName}(Long id, ${resourceName} ${resourceName.toLowerCase()}Details) {
+        ${resourceName} existing${resourceName} = ${resourceName.toLowerCase()}Repository.findById(id).orElse(null);
+        if (existing${resourceName} != null) {
+            existing${resourceName}.set${resourceName}Name(${resourceName.toLowerCase()}Details.get${resourceName}Name());
+            return ${resourceName.toLowerCase()}Repository.save(existing${resourceName});
+        }
+        throw new RuntimeException("${resourceName} not found with id " + id);
+    }
+
+    public void delete${resourceName}(Long id) {
+        ${resourceName.toLowerCase()}Repository.deleteById(id);
+    }
+}
+`;
+
+    const fileName = `${resourceName}Service.java`;
+    const fullPath = path.join(resourcePath, fileName);
+
+    try {
+        await writeFileSync(fullPath, content, 'utf8');
+        console.log(`Service file created successfully at: ${fullPath}`);
+    } catch (error) {
+        console.error('Error creating service file:', error);
+    }
+}
+
+
+async function createControllerFile(resourcePath:any, resourceName:any) {
+    const content = `
+package com.natetrystuff.${resourceName};
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/${resourceName.toLowerCase()}s")
+public class ${resourceName}Controller {
+
+    private final ${resourceName}Service ${resourceName.toLowerCase()}Service;
+
+    public ${resourceName}Controller(${resourceName}Service ${resourceName.toLowerCase()}Service) {
+        this.${resourceName.toLowerCase()}Service = ${resourceName.toLowerCase()}Service;
+    }
+
+    @GetMapping
+    public List<${resourceName}> getAll${resourceName}s() {
+        return ${resourceName.toLowerCase()}Service.listAll${resourceName}s();
+    }
+
+    @PostMapping
+    public ResponseEntity<${resourceName}> add${resourceName}(@RequestBody ${resourceName} ${resourceName.toLowerCase()}) {
+        ${resourceName} new${resourceName} = ${resourceName.toLowerCase()}Service.create${resourceName}(${resourceName.toLowerCase()});
+        return new ResponseEntity<>(new${resourceName}, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<${resourceName}> get${resourceName}ById(@PathVariable Long id) {
+        ${resourceName} ${resourceName.toLowerCase()} = ${resourceName.toLowerCase()}Service.get${resourceName}ById(id);
+        if (${resourceName.toLowerCase()} != null) {
+            return new ResponseEntity<>(${resourceName.toLowerCase()}, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<${resourceName}> update${resourceName}(@PathVariable Long id, @RequestBody ${resourceName} ${resourceName.toLowerCase()}Details) {
+        try {
+            ${resourceName} updated${resourceName} = ${resourceName.toLowerCase()}Service.update${resourceName}(id, ${resourceName.toLowerCase()}Details);
+            return new ResponseEntity<>(updated${resourceName}, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete${resourceName}(@PathVariable Long id) {
+        ${resourceName.toLowerCase()}Service.delete${resourceName}(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+}
+`;
+
+    const fileName = `${resourceName}Controller.java`;
+    const fullPath = path.join(resourcePath, fileName);
+
+    try {
+        await writeFileSync(fullPath, content, 'utf8');
+        console.log(`Controller file created successfully at: ${fullPath}`);
+    } catch (error) {
+        console.error('Error creating controller file:', error);
+    }
+}
+
+
+
+async function createRepositoryFile(resourcePath:string, resourceName:string) {
+    const content = `
+package com.natetrystuff.${resourceName};
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ${resourceName}Repository extends JpaRepository<${resourceName}, Long> {
+}
+`;
+
+    const fileName = `${resourceName}Repository.java`;
+    const fullPath = path.join(resourcePath, fileName);
+
+    try {
+        await writeFileSync(fullPath, content, 'utf8');
+        console.log(`Repository file created successfully at: ${fullPath}`);
+    } catch (error) {
+        console.error('Error creating repository file:', error);
+    }
+}
+
 
 async function createNewResource(projectPath: string, resourceName: string, body:any) {
     try {
@@ -133,6 +282,9 @@ async function createNewResource(projectPath: string, resourceName: string, body
             await fs.mkdir(resourcePath, { recursive: true });
             console.log('New resource folder created at:', resourcePath);
             createObjectFile(resourcePath, resourceName, body);
+            createRepositoryFile(resourcePath, resourceName);
+            createServiceFile(resourcePath, resourceName);
+            createControllerFile(resourcePath, resourceName);
         }
         
     } catch (error) {
