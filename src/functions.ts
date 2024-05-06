@@ -32,104 +32,104 @@ export function buildRestCall(
   }
 }
 export async function processResources(projectPath: any) {
-    try {
-      const files = await getAllFiles(projectPath);
-      const cleanedFiles = files.map((file) => file.replace(projectPath, ""));
-      const uniqueFolders = [
-        ...new Set(
-          cleanedFiles
-            .filter((file) => file.startsWith("/src/main/java/com/natetrystuff/"))
-            .map((file) => {
-              const match = file.match(
-                /^\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/,
-              );
-              return match ? match[1] : null;
-            }),
-        ),
-      ]
-        .filter(Boolean)
-        .filter((value) => {
-          const isFile = value.includes(".");
-          if (isFile) {
-            return false;
-          }
-          return true;
-        });
-  
-      const resources = await Promise.all(
-        uniqueFolders.map(async (folder) => {
-          const resourceFiles = cleanedFiles.filter((file) =>
-            file.startsWith(`/src/main/java/com/natetrystuff/${folder}/`),
-          );
-          const controllerFile = resourceFiles.find((file) =>
-            file.endsWith("Controller.java"),
-          );
-  
-          let restMethods: any = [];
-          if (controllerFile) {
-            const data = await fs.readFile(projectPath + controllerFile, "utf8");
-            restMethods = data
-              ?.match(/@[A-Za-z]+Mapping(\("[^"]*"\))?/g)
-              ?.filter((restCall) => {
-                if (restCall.includes("RequestMapping")) {
-                  console.log("removing", restCall);
-                  return false;
-                }
-                return true;
-              })
-              .filter(Boolean);
-          }
-  
-          return {
-            name: folder,
-            files: resourceFiles,
-            restMethods: restMethods,
-          };
-        }),
-      );
-      return resources;
-      console.log("All Resources:", JSON.stringify(resources, null, 2));
-    } catch (error) {
-      console.error("Error processing resources:", error);
-    }
+  try {
+    const files = await getAllFiles(projectPath);
+    const cleanedFiles = files.map((file) => file.replace(projectPath, ""));
+    const uniqueFolders = [
+      ...new Set(
+        cleanedFiles
+          .filter((file) => file.startsWith("/src/main/java/com/natetrystuff/"))
+          .map((file) => {
+            const match = file.match(
+              /^\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/,
+            );
+            return match ? match[1] : null;
+          }),
+      ),
+    ]
+      .filter(Boolean)
+      .filter((value) => {
+        const isFile = value.includes(".");
+        if (isFile) {
+          return false;
+        }
+        return true;
+      });
+
+    const resources = await Promise.all(
+      uniqueFolders.map(async (folder) => {
+        const resourceFiles = cleanedFiles.filter((file) =>
+          file.startsWith(`/src/main/java/com/natetrystuff/${folder}/`),
+        );
+        const controllerFile = resourceFiles.find((file) =>
+          file.endsWith("Controller.java"),
+        );
+
+        let restMethods: any = [];
+        if (controllerFile) {
+          const data = await fs.readFile(projectPath + controllerFile, "utf8");
+          restMethods = data
+            ?.match(/@[A-Za-z]+Mapping(\("[^"]*"\))?/g)
+            ?.filter((restCall) => {
+              if (restCall.includes("RequestMapping")) {
+                console.log("removing", restCall);
+                return false;
+              }
+              return true;
+            })
+            .filter(Boolean);
+        }
+
+        return {
+          name: folder,
+          files: resourceFiles,
+          restMethods: restMethods,
+        };
+      }),
+    );
+    return resources;
+    console.log("All Resources:", JSON.stringify(resources, null, 2));
+  } catch (error) {
+    console.error("Error processing resources:", error);
   }
+}
 export async function createNewResource(resourceName: string, body: any) {
-try {
+  try {
     console.log("here");
     const resourcePath = path.join(
-    projectPath,
-    "/src/main/java/com/natetrystuff/",
-    resourceName,
+      projectPath,
+      "/src/main/java/com/natetrystuff/",
+      resourceName,
     );
 
     try {
-    await fs.access(resourcePath); // Try to access the directory to check if it exists
-    console.log("Resource folder already exists at:", resourcePath);
+      await fs.access(resourcePath); // Try to access the directory to check if it exists
+      console.log("Resource folder already exists at:", resourcePath);
     } catch {
-    // If the directory does not exist, access will throw an error which we catch here to then create the directory
-    await fs.mkdir(resourcePath, { recursive: true });
-    console.log("New resource folder created at:", resourcePath);
-    createObjectFile(resourcePath, resourceName, body);
-    createRepositoryFile(resourcePath, resourceName);
-    createServiceFile(resourcePath, resourceName);
-    createControllerFile(resourcePath, resourceName);
+      // If the directory does not exist, access will throw an error which we catch here to then create the directory
+      await fs.mkdir(resourcePath, { recursive: true });
+      console.log("New resource folder created at:", resourcePath);
+      createObjectFile(resourcePath, resourceName, body);
+      createRepositoryFile(resourcePath, resourceName);
+      createServiceFile(resourcePath, resourceName);
+      createControllerFile(resourcePath, resourceName);
     }
-} catch (error) {
+  } catch (error) {
     console.error("Error creating new resource folder:", error);
-}
+  }
 }
 export async function hasMany(body: any) {
-    const class1 = body.class1;
-    const class2 = body.class2;
-    const class1Path = `${projectPath}/src/main/java/com/natetrystuff/${class1}/${class1}.java`;
-    const class2Path = `${projectPath}/src/main/java/com/natetrystuff/${class2}/${class1}.java`;
-    const lineToAddNewProperty = findLineToAddNewProperty(class1Path);
-    addToFile(
-      class1Path,
-      lineToAddNewProperty,
-      `\tprivate List<${class2}> ${class2.toLowerCase()}s;`,
-    );
-  }
+  const class1 = body.class1;
+  const class2 = body.class2;
+  const class1Path = `${projectPath}/src/main/java/com/natetrystuff/${class1}/${class1}.java`;
+  const class2Path = `${projectPath}/src/main/java/com/natetrystuff/${class2}/${class1}.java`;
+  const lineToAddNewProperty = findLineToAddNewProperty(class1Path);
+  addToFile(
+    class1Path,
+    lineToAddNewProperty,
+    `\tprivate List<${class2}> ${class2.toLowerCase()}s;`,
+  );
+}
 function addGetOneRequest(controllerFile: string, resource: string): void {
   const MOCK_CODE = `
         @GetMapping("/{id}")
