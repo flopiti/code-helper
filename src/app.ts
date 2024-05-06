@@ -16,7 +16,8 @@ app.get('/add-request', (req, res) => {
 
 app.post('/create-new-resource/:id', (req, res) => {
     const id = req.params.id;
-    createNewResource(projectPath, id);
+    console.log(req.body)
+    createNewResource(projectPath, id, req.body.data);
     res.status(200).json({ message: 'received' });
 }
 );
@@ -85,33 +86,23 @@ async function processResources(projectPath:any) {
         console.error('Error processing resources:', error);
     }
 }
-async function createObjectFile(resourcePath:any, resourceName:any) {
+async function createObjectFile(resourcePath:any, resourceName:any, body:any) {
     const content = `
 package com.natetrystuff.${resourceName};
 
-import java.time.LocalDateTime;
 import lombok.Data;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
 @Entity
 @Data
 public class ${resourceName} {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long scheduleId;
+    private Long ${resourceName}Id;
 
-    @ManyToOne
-    @JoinColumn(name = "meal_id", referencedColumnName = "mealId")
-    private Meal meal;
-
-    private LocalDateTime scheduledTime;
+    private String ${body.propertieName};
 }
 `;
 
@@ -129,7 +120,7 @@ public class ${resourceName} {
 }
 
 
-async function createNewResource(projectPath: string, resourceName: string) {
+async function createNewResource(projectPath: string, resourceName: string, body:any) {
     try {
         console.log('here')
         const resourcePath = path.join(projectPath, '/src/main/java/com/natetrystuff/', resourceName);
@@ -141,7 +132,7 @@ async function createNewResource(projectPath: string, resourceName: string) {
             // If the directory does not exist, access will throw an error which we catch here to then create the directory
             await fs.mkdir(resourcePath, { recursive: true });
             console.log('New resource folder created at:', resourcePath);
-            createObjectFile(resourcePath, resourceName);
+            createObjectFile(resourcePath, resourceName, body);
         }
         
     } catch (error) {
