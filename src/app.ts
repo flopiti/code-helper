@@ -1,11 +1,8 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { readFileSync, writeFileSync } from 'fs';
-import express from 'express';
-import router from './routes'; // Import the router from routes.ts
+import express from "express";
+import router from "./routes"; // Import the router from routes.ts
 
 const app = express();
-app.use(express.json()); 
+app.use(express.json());
 app.use(router);
 
 const PORT = process.env.PORT || 1234;
