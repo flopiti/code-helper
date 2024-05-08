@@ -255,7 +255,7 @@ public class ${resourceName}Controller {
     console.error("Error creating controller file:", error);
   }
 }
-async function hasMany(projectPath, body) {
+async function AddHasManyRelationshipBase(projectPath, body) {
   console.log(body);
   const class1 = body.class1;
   const class2 = body.class2;

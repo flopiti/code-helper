@@ -28,7 +28,7 @@ router.post("/create-new-resource/:id", (req: any, res) => {
 });
 
 router.post("/has-many", (req: any, res) => {
-  hasMany(req.body.data);
+  AddHasManyRelationshipBase(req.body.data);
   res.status(200).json({ message: "received" });
 });
 
