@@ -2,7 +2,7 @@ import express from "express";
 import {
   buildRestCall,
   createNewResource,
-  hasMany,
+  AddHasManyRelationshipBase,
   processResources,
 } from "./functions";
 const router = express.Router();
