@@ -118,11 +118,10 @@ export async function createNewResource(resourceName: string, body: any) {
     console.error("Error creating new resource folder:", error);
   }
 }
-export async function hasMany(body: any) {
+export async function AddHasManyRelationshipBase(body: any) {
   const class1 = body.class1;
   const class2 = body.class2;
   const class1Path = `${projectPath}/src/main/java/com/natetrystuff/${class1}/${class1}.java`;
-  const class2Path = `${projectPath}/src/main/java/com/natetrystuff/${class2}/${class1}.java`;
   const lineToAddNewProperty = findLineToAddNewProperty(class1Path);
   addToFile(
     class1Path,
