@@ -127,8 +127,13 @@ export async function hasMany(body: any) {
   addToFile(
     class1Path,
     lineToAddNewProperty,
-    `\tprivate List<${class2}> ${class2.toLowerCase()}s;`,
+    `    
+    @OneToMany
+    @JoinColumn(name = "class1.toLowerCase()_id")
+    \tprivate List<${class2}> ${class2.toLowerCase()}s;
+    `,
   );
+  createNewResource(class2, { propertieName: class1.toLowerCase() });
 }
 function addGetOneRequest(controllerFile: string, resource: string): void {
   const MOCK_CODE = `
@@ -382,3 +387,4 @@ public interface ${resourceName}Repository extends JpaRepository<${resourceName}
     console.error("Error creating repository file:", error);
   }
 }
+
