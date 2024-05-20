@@ -31,7 +31,7 @@ export function buildRestCall(
     //   addDeleteOneRequest(controllerFile, resource);
   }
 }
-export async function processResources(projectPath: any) {
+export async function processResources() {
   try {
     const files = await getAllFiles(projectPath);
     const cleanedFiles = files.map((file) => file.replace(projectPath, ""));
@@ -55,7 +55,6 @@ export async function processResources(projectPath: any) {
         }
         return true;
       });
-
     const resources = await Promise.all(
       uniqueFolders.map(async (folder) => {
         const resourceFiles = cleanedFiles.filter((file) =>
@@ -80,9 +79,12 @@ export async function processResources(projectPath: any) {
             .filter(Boolean);
         }
 
+        const cleanResourcesFiles = resourceFiles.map((file) =>
+            file.replace(`/src/main/java/com/natetrystuff/${folder}/`, ""),
+        );
         return {
           name: folder,
-          files: resourceFiles,
+          files: cleanResourcesFiles,
           restMethods: restMethods,
         };
       }),
@@ -95,7 +97,6 @@ export async function processResources(projectPath: any) {
 }
 export async function createNewResource(resourceName: string, body: any) {
   try {
-    console.log("here");
     const resourcePath = path.join(
       projectPath,
       "/src/main/java/com/natetrystuff/",
