@@ -4,6 +4,7 @@ import {
   createNewResource,
   AddHasManyRelationshipBase,
   processResources,
+  getFileContent,
 } from "./functions";
 const router = express.Router();
 
@@ -18,10 +19,15 @@ router.post("/has-many", (req: any, res) => {
   res.status(200).json({ message: "received" });
 });
 
+router.get(`/get-file`, async (req: any, res) => {
+  console.log(req.query.fileName)
+  const response = await getFileContent(req.query.fileName)
+  res.status(200).json(response);
+
+});
+
 router.get(`/spring-boot-classes`, async (req: any, res) => { 
-  console.log("spring-boot-classes")
   const response = await processResources();
-  console.log(response)
   res.status(200).json(response);
 }
 );

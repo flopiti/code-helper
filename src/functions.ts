@@ -135,6 +135,19 @@ export async function AddHasManyRelationshipBase(body: any) {
   );
   createNewResource(class2, { propertieName: class1.toLowerCase() });
 }
+
+export async function getFileContent(fileName: string): Promise<string | null> {
+  const allFiles = await getAllFiles(projectPath);
+  const filePath = allFiles.find(file => path.basename(file) === fileName);
+  console.log(filePath)
+  if (filePath) {
+    console.log("Reading file:", filePath)
+    return await fs.readFile(filePath, 'utf-8');
+  } else {
+    return null;
+  }
+}
+
 function addGetOneRequest(controllerFile: string, resource: string): void {
   const MOCK_CODE = `
         @GetMapping("/{id}")
@@ -143,14 +156,9 @@ function addGetOneRequest(controllerFile: string, resource: string): void {
         }
     `;
 
-  console.log(resource);
   const CODE_READY = MOCK_CODE.replace("resource", resource);
 
-  console.log("CODE_READY:", CODE_READY);
-
-  console.log("Controller File:", controllerFile);
   const lineToAdd = findLineToAddGetOneRequest(controllerFile);
-  console.log("Line to add:", lineToAdd);
 
   addToFile(`${projectPath}+${controllerFile}`, lineToAdd, CODE_READY);
 }
@@ -387,4 +395,5 @@ public interface ${resourceName}Repository extends JpaRepository<${resourceName}
     console.error("Error creating repository file:", error);
   }
 }
+
 
