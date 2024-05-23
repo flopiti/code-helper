@@ -136,6 +136,20 @@ export async function AddHasManyRelationshipBase(body: any) {
   createNewResource(class2, { propertieName: class1.toLowerCase() });
 }
 
+export async function replaceCode(fileName: string, code: string): Promise<string | null> {
+  const allFiles = await getAllFiles(projectPath);
+  const filePath = allFiles.find(file => path.basename(file) === fileName);
+  console.log(filePath);
+  if (filePath) {
+    console.log("Reading file:", filePath);
+    await fs.writeFile(filePath, code, 'utf-8');
+    console.log("File updated successfully");
+    return code; // Return the new content of the file
+  } else {
+    return null;
+  }
+}
+
 export async function getFileContent(fileName: string): Promise<string | null> {
   const allFiles = await getAllFiles(projectPath);
   const filePath = allFiles.find(file => path.basename(file) === fileName);
