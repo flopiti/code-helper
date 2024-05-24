@@ -207,7 +207,7 @@ function addToFile(filePath: string, line: number, text: string): void {
   writeFileSync(filePath, updatedContent, "utf8");
 }
 
-async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
+export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   for (let entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
