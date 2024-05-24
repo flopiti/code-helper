@@ -38,15 +38,23 @@ router.get(`/spring-boot-classes`, async (req: any, res) => {
 });
 
 router.get(`/get-projects`, async (req: any, res) => { 
-  console.log('get-projects')
   const response = await getProjectsInPath();
-  console.log('response', response)
   res.status(200).json(response);
 });
 
 router.get(`/get-all-filenames`, async (req: any, res) => {
-  const { projectPath } = req.params;
-  const response = await getAllFiles(projectPath)
+
+  if(req.query.project === 'natetrystuff-api') {
+    console.log('natetrystuff-api')
+  }
+  else if(req.query.project === 'natetrystuff-web') {
+    console.log('natetrystuff-ui')
+  }
+  else if(req.query.project === 'code-helper') {
+    console.log('natetrystuff')
+  }
+
+  const response = await getAllFiles(`/Users/nathanpieraut/projects/${req.query.project}`);
   res.status(200).json(response);
 });
 

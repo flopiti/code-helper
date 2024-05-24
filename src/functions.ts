@@ -71,7 +71,6 @@ export async function processResources() {
             ?.match(/@[A-Za-z]+Mapping(\("[^"]*"\))?/g)
             ?.filter((restCall) => {
               if (restCall.includes("RequestMapping")) {
-                console.log("removing", restCall);
                 return false;
               }
               return true;
@@ -211,9 +210,9 @@ export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   for (let entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
-    if (entry.isDirectory()) {
+    if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
       arrayOfFiles = await getAllFiles(fullPath, arrayOfFiles);
-    } else {
+    } else if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
       arrayOfFiles.push(fullPath);
     }
   }
