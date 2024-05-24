@@ -40,4 +40,10 @@ router.get(`/get-projects`, async (req: any, res) => {
   res.status(200).json(response);
 });
 
+router.get(`/get-all-filenames`, async (req: any, res) => {
+  const { projectPath } = req.params;
+  const response = await getAllFiles(projectPath)
+  res.status(200).json(response);
+});
+
 export default router;
