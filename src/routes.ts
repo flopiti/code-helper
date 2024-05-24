@@ -6,6 +6,8 @@ import {
   processResources,
   getFileContent,
   replaceCode,
+  getAllFiles,
+  getProjectsInPath,
 } from "./functions";
 const router = express.Router();
 
@@ -36,7 +38,9 @@ router.get(`/spring-boot-classes`, async (req: any, res) => {
 });
 
 router.get(`/get-projects`, async (req: any, res) => { 
+  console.log('get-projects')
   const response = await getProjectsInPath();
+  console.log('response', response)
   res.status(200).json(response);
 });
 

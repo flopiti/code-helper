@@ -99,7 +99,7 @@ export async function processResources() {
 export async function getProjectsInPath() {
   const dirPath = '/Users/nathanpieraut/projects/';
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  const projects = entries.filter(entry => entry.isDirectory()).map(dir => path.join(dirPath, dir.name));
+  const projects = entries.filter(entry => entry.isDirectory()).map(dir => dir.name);
   return projects;
 }
 
