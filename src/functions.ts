@@ -95,6 +95,14 @@ export async function processResources() {
     console.error("Error processing resources:", error);
   }
 }
+
+export async function getProjectsInPath() {
+  const dirPath = '/Users/nathanpieraut/projects/';
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const projects = entries.filter(entry => entry.isDirectory()).map(dir => path.join(dirPath, dir.name));
+  return projects;
+}
+
 export async function createNewResource(resourceName: string, body: any) {
   try {
     const resourcePath = path.join(
