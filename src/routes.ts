@@ -33,7 +33,11 @@ router.post(`/replace-code`, async (req: any, res) => {
 router.get(`/spring-boot-classes`, async (req: any, res) => { 
   const response = await processResources();
   res.status(200).json(response);
-}
-);
+});
+
+router.get(`/get-projects`, async (req: any, res) => { 
+  const response = await getProjectsInPath();
+  res.status(200).json(response);
+});
 
 export default router;
