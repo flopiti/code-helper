@@ -208,6 +208,7 @@ function addToFile(filePath: string, line: number, text: string): void {
 
 export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  console.log(entries)
   for (let entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
@@ -418,3 +419,15 @@ public interface ${resourceName}Repository extends JpaRepository<${resourceName}
 }
 
 
+export async function getAllFilesSpringBoot(dirPath: any, arrayOfFiles: any[] = []) {
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  for (let entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
+      arrayOfFiles = await getAllFilesSpringBoot(fullPath, arrayOfFiles);
+    } else if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
+      arrayOfFiles.push(fullPath);
+    }
+  }
+  return arrayOfFiles;
+}
