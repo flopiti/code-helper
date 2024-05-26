@@ -26,7 +26,6 @@ router.post("/has-many", (req: any, res) => {
 router.get(`/get-file`, async (req: any, res) => {
   console.log(req.query)
   const response = await getFileContent(req.query.fileName)
-  console.log(response)
   res.status(200).json(response);
 });
 

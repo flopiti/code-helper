@@ -187,11 +187,9 @@ export async function replaceCode(fileName: string, code: string): Promise<strin
 export async function getFileContent(fileName: string): Promise<string | null> {
   const allFiles = await getAllFiles(projectPath);
   const filePath = allFiles.find(file => {
-    console.log(path.basename(file), fileName)
     return path.basename(file) === fileName;
   
   });
-  console.log(filePath)
   if (filePath) {
     console.log("Reading file:", filePath)
     return await fs.readFile(filePath, 'utf-8');
