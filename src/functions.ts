@@ -184,12 +184,26 @@ export async function replaceCode(fileName: string, code: string): Promise<strin
   }
 }
 
-export async function getFileContent(fileName: string): Promise<string | null> {
-  const allFiles = await getAllFiles(projectPath);
-  const filePath = allFiles.find(file => {
-    return path.basename(file) === fileName;
+export async function getFileContent(fileName: string, project:string): Promise<string | null> {
+  console.log("Getting file content for:", fileName);
+  let allFiles;
+
+  if(project === 'natetrystuff-api') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
+  }
+  if(project === 'natetrystuff-web') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-web/natetrystuff-web");
+  }
+  if(project === 'code-helper') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
+  }
+
+  console.log(allFiles)
+  const filePath = allFiles?.find(file => file.includes(fileName));
   
-  });
+
+
+  console.log(filePath)
   if (filePath) {
     console.log("Reading file:", filePath)
     return await fs.readFile(filePath, 'utf-8');
@@ -236,6 +250,7 @@ function addToFile(filePath: string, line: number, text: string): void {
 }
 
 export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
+  console.log(dirPath)
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   for (let entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
@@ -463,6 +478,23 @@ export async function getAllFilesSpringBoot(dirPath: any) {
   ]
     .filter(Boolean);
   return selectedFiles.map(file => path.basename(file));
+}
 
-
+export async function getAllFilesNextJs(dirPath: any) {
+  const files = await getAllFiles(dirPath);
+  const cleanedFiles = files.map((file) => file.replace(projectPath, ""));
+  const selectedFiles = [
+      ...cleanedFiles
+    
+  ]
+    .filter(Boolean);
+    return selectedFiles.map(file => {
+      const parts = file.split(path.sep);
+      if (parts.length >= 3) {
+          return path.join(parts[parts.length - 3], parts[parts.length - 2], parts[parts.length - 1]);
+      } else {
+          return ''; 
+      }
+  });
+  
 }

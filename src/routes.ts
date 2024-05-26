@@ -6,9 +6,9 @@ import {
   processResources,
   getFileContent,
   replaceCode,
-  getAllFiles,
   getProjectsInPath,
   getAllFilesSpringBoot,
+  getAllFilesNextJs,
 } from "./functions";
 const router = express.Router();
 
@@ -25,7 +25,7 @@ router.post("/has-many", (req: any, res) => {
 
 router.get(`/get-file`, async (req: any, res) => {
   console.log(req.query)
-  const response = await getFileContent(req.query.fileName)
+  const response = await getFileContent(req.query.fileName, req.query.project)
   res.status(200).json(response);
 });
 
@@ -45,8 +45,18 @@ router.get(`/get-projects`, async (req: any, res) => {
 });
 
 router.get(`/get-all-filenames`, async (req: any, res) => {
+  console.log(req.query);
+
   if(req.query.type === 'spring-boot') {
     const response = await getAllFilesSpringBoot(`/Users/nathanpieraut/projects/${req.query.project}`);
+    res.status(200).json(response);
+  }
+  else if(req.query.type === 'next-js') {
+    const response = await getAllFilesNextJs(`/Users/nathanpieraut/projects/${req.query.project}`);
+    res.status(200).json(response);
+  }
+  else if(req.query.type === 'node-js') {
+    const response = await getAllFilesNextJs(`/Users/nathanpieraut/projects/${req.query.project}`);
     res.status(200).json(response);
   }
 });
