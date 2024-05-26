@@ -71,7 +71,6 @@ export async function processResources() {
             ?.match(/@[A-Za-z]+Mapping(\("[^"]*"\))?/g)
             ?.filter((restCall) => {
               if (restCall.includes("RequestMapping")) {
-                console.log("removing", restCall);
                 return false;
               }
               return true;
@@ -90,11 +89,46 @@ export async function processResources() {
       }),
     );
     return resources;
-    console.log("All Resources:", JSON.stringify(resources, null, 2));
   } catch (error) {
     console.error("Error processing resources:", error);
   }
 }
+
+export async function getProjectsInPath() {
+  const dirPath = '/Users/nathanpieraut/projects/';
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const projects = entries.filter(entry => entry.isDirectory()).map(dir => dir.name);
+  const projectDetails = await Promise.all(projects.map(async project => {
+    const projectType = await getProjectType(dirPath + project);
+
+    return {
+      name: project,
+      path: dirPath + project,
+      type: projectType
+    }
+  }));
+  return projectDetails;
+}
+
+const getProjectType = async (projectPath: string) => {
+  const files = await getAllFiles(projectPath);
+
+  const pomFile = files.find(file => file.endsWith('pom.xml'));
+  if (pomFile) {
+    const data = await fs.readFile(pomFile, 'utf-8');
+    if (data.includes('spring-boot-starter-parent')) {
+      return 'spring-boot';
+    }
+  }
+  if(files.find(file => file.endsWith('next.config.mjs'))) {
+    return 'next-js';
+  }
+  if((files.find(file => file.endsWith('package.json')))){
+    return 'node-js';
+  }
+
+}
+
 export async function createNewResource(resourceName: string, body: any) {
   try {
     const resourcePath = path.join(
@@ -150,9 +184,25 @@ export async function replaceCode(fileName: string, code: string): Promise<strin
   }
 }
 
-export async function getFileContent(fileName: string): Promise<string | null> {
-  const allFiles = await getAllFiles(projectPath);
-  const filePath = allFiles.find(file => path.basename(file) === fileName);
+export async function getFileContent(fileName: string, project:string): Promise<string | null> {
+  console.log("Getting file content for:", fileName);
+  let allFiles;
+
+  if(project === 'natetrystuff-api') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
+  }
+  if(project === 'natetrystuff-web') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-web/natetrystuff-web");
+  }
+  if(project === 'code-helper') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
+  }
+
+  console.log(allFiles)
+  const filePath = allFiles?.find(file => file.includes(fileName));
+  
+
+
   console.log(filePath)
   if (filePath) {
     console.log("Reading file:", filePath)
@@ -199,13 +249,14 @@ function addToFile(filePath: string, line: number, text: string): void {
   writeFileSync(filePath, updatedContent, "utf8");
 }
 
-async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
+export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
+  console.log(dirPath)
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   for (let entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
-    if (entry.isDirectory()) {
+    if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
       arrayOfFiles = await getAllFiles(fullPath, arrayOfFiles);
-    } else {
+    } else if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
       arrayOfFiles.push(fullPath);
     }
   }
@@ -411,3 +462,39 @@ public interface ${resourceName}Repository extends JpaRepository<${resourceName}
 }
 
 
+export async function getAllFilesSpringBoot(dirPath: any) {
+  const files = await getAllFiles(dirPath);
+  const cleanedFiles = files.map((file) => file.replace(projectPath, ""));
+  const selectedFiles = [
+      ...cleanedFiles
+        .filter((file) => file.startsWith("/src/main/java/com/natetrystuff/"))
+        .map((file) => {
+          const match = file.match(
+            /^\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/,
+          );
+          return match ? file : null;
+        }),
+    ,
+  ]
+    .filter(Boolean);
+  return selectedFiles.map(file => path.basename(file));
+}
+
+export async function getAllFilesNextJs(dirPath: any) {
+  const files = await getAllFiles(dirPath);
+  const cleanedFiles = files.map((file) => file.replace(projectPath, ""));
+  const selectedFiles = [
+      ...cleanedFiles
+    
+  ]
+    .filter(Boolean);
+    return selectedFiles.map(file => {
+      const parts = file.split(path.sep);
+      if (parts.length >= 3) {
+          return path.join(parts[parts.length - 3], parts[parts.length - 2], parts[parts.length - 1]);
+      } else {
+          return ''; 
+      }
+  });
+  
+}
