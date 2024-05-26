@@ -8,6 +8,7 @@ import {
   replaceCode,
   getAllFiles,
   getProjectsInPath,
+  getAllFilesSpringBoot,
 } from "./functions";
 const router = express.Router();
 
@@ -23,7 +24,9 @@ router.post("/has-many", (req: any, res) => {
 });
 
 router.get(`/get-file`, async (req: any, res) => {
+  console.log(req.query)
   const response = await getFileContent(req.query.fileName)
+  console.log(response)
   res.status(200).json(response);
 });
 
@@ -43,9 +46,10 @@ router.get(`/get-projects`, async (req: any, res) => {
 });
 
 router.get(`/get-all-filenames`, async (req: any, res) => {
-
-  const response = await getAllFiles(`/Users/nathanpieraut/projects/${req.query.project}`);
-  res.status(200).json(response);
+  if(req.query.type === 'spring-boot') {
+    const response = await getAllFilesSpringBoot(`/Users/nathanpieraut/projects/${req.query.project}`);
+    res.status(200).json(response);
+  }
 });
 
 export default router;

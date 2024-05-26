@@ -89,7 +89,6 @@ export async function processResources() {
       }),
     );
     return resources;
-    console.log("All Resources:", JSON.stringify(resources, null, 2));
   } catch (error) {
     console.error("Error processing resources:", error);
   }
@@ -99,7 +98,35 @@ export async function getProjectsInPath() {
   const dirPath = '/Users/nathanpieraut/projects/';
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   const projects = entries.filter(entry => entry.isDirectory()).map(dir => dir.name);
-  return projects;
+  const projectDetails = await Promise.all(projects.map(async project => {
+    const projectType = await getProjectType(dirPath + project);
+
+    return {
+      name: project,
+      path: dirPath + project,
+      type: projectType
+    }
+  }));
+  return projectDetails;
+}
+
+const getProjectType = async (projectPath: string) => {
+  const files = await getAllFiles(projectPath);
+
+  const pomFile = files.find(file => file.endsWith('pom.xml'));
+  if (pomFile) {
+    const data = await fs.readFile(pomFile, 'utf-8');
+    if (data.includes('spring-boot-starter-parent')) {
+      return 'spring-boot';
+    }
+  }
+  if(files.find(file => file.endsWith('next.config.mjs'))) {
+    return 'next-js';
+  }
+  if((files.find(file => file.endsWith('package.json')))){
+    return 'node-js';
+  }
+
 }
 
 export async function createNewResource(resourceName: string, body: any) {
@@ -159,7 +186,11 @@ export async function replaceCode(fileName: string, code: string): Promise<strin
 
 export async function getFileContent(fileName: string): Promise<string | null> {
   const allFiles = await getAllFiles(projectPath);
-  const filePath = allFiles.find(file => path.basename(file) === fileName);
+  const filePath = allFiles.find(file => {
+    console.log(path.basename(file), fileName)
+    return path.basename(file) === fileName;
+  
+  });
   console.log(filePath)
   if (filePath) {
     console.log("Reading file:", filePath)
@@ -208,7 +239,6 @@ function addToFile(filePath: string, line: number, text: string): void {
 
 export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  console.log(entries)
   for (let entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
@@ -419,15 +449,22 @@ public interface ${resourceName}Repository extends JpaRepository<${resourceName}
 }
 
 
-export async function getAllFilesSpringBoot(dirPath: any, arrayOfFiles: any[] = []) {
-  const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  for (let entry of entries) {
-    const fullPath = path.join(dirPath, entry.name);
-    if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
-      arrayOfFiles = await getAllFilesSpringBoot(fullPath, arrayOfFiles);
-    } else if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
-      arrayOfFiles.push(fullPath);
-    }
-  }
-  return arrayOfFiles;
+export async function getAllFilesSpringBoot(dirPath: any) {
+  const files = await getAllFiles(dirPath);
+  const cleanedFiles = files.map((file) => file.replace(projectPath, ""));
+  const selectedFiles = [
+      ...cleanedFiles
+        .filter((file) => file.startsWith("/src/main/java/com/natetrystuff/"))
+        .map((file) => {
+          const match = file.match(
+            /^\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/,
+          );
+          return match ? file : null;
+        }),
+    ,
+  ]
+    .filter(Boolean);
+  return selectedFiles.map(file => path.basename(file));
+
+
 }
