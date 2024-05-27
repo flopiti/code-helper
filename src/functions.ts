@@ -170,14 +170,24 @@ export async function AddHasManyRelationshipBase(body: any) {
   createNewResource(class2, { propertieName: class1.toLowerCase() });
 }
 
-export async function replaceCode(fileName: string, code: string): Promise<string | null> {
-  const allFiles = await getAllFiles(projectPath);
-  const filePath = allFiles.find(file => path.basename(file) === fileName);
+export async function replaceCode(fileName: string, code: string, project:string): Promise<string | null> {
+  let allFiles;
+  if(project === 'natetrystuff-api') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
+  }
+  if(project === 'natetrystuff-web') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-web");
+  }
+  if(project === 'code-helper') {
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
+  }
+  const filePath = allFiles?.find(file => file.includes(fileName));
+  console.log("File path:", filePath)
   if (filePath) {
     console.log("Reading file:", filePath);
     await fs.writeFile(filePath, code, 'utf-8');
     console.log("File updated successfully");
-    return code; // Return the new content of the file
+    return code;
   } else {
     return null;
   }
@@ -186,7 +196,6 @@ export async function replaceCode(fileName: string, code: string): Promise<strin
 export async function getFileContent(fileName: string, project:string): Promise<string | null> {
   console.log("Getting file content for:", fileName);
   let allFiles;
-
   if(project === 'natetrystuff-api') {
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
   }

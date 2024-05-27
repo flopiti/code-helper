@@ -33,7 +33,7 @@ router.get(`/get-file`, async (req:any, res) => {
   }
 });
 router.post(`/replace-code`, async (req: any, res) => {
-  replaceCode(req.body.data.fileName, req.body.data.code);
+  replaceCode(req.body.data.fileName, req.body.data.code, req.body.data.project);
   res.status(200).json({ message: "received" });
 });
 
