@@ -23,12 +23,15 @@ router.post("/has-many", (req: any, res) => {
   res.status(200).json({ message: "received" });
 });
 
-router.get(`/get-file`, async (req: any, res) => {
-  console.log(req.query)
-  const response = await getFileContent(req.query.fileName, req.query.project)
-  res.status(200).json(response);
+router.get(`/get-file`, async (req:any, res) => {
+  try {
+    const response = await getFileContent(req.query.fileName, req.query.project);
+    res.status(200).json(response);
+  } catch (error) {
+    console.log('Error handling request:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
-
 router.post(`/replace-code`, async (req: any, res) => {
   replaceCode(req.body.data.fileName, req.body.data.code);
   res.status(200).json({ message: "received" });
