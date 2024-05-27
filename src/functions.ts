@@ -173,7 +173,6 @@ export async function AddHasManyRelationshipBase(body: any) {
 export async function replaceCode(fileName: string, code: string): Promise<string | null> {
   const allFiles = await getAllFiles(projectPath);
   const filePath = allFiles.find(file => path.basename(file) === fileName);
-  console.log(filePath);
   if (filePath) {
     console.log("Reading file:", filePath);
     await fs.writeFile(filePath, code, 'utf-8');
@@ -192,18 +191,12 @@ export async function getFileContent(fileName: string, project:string): Promise<
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
   }
   if(project === 'natetrystuff-web') {
-    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-web/natetrystuff-web");
+    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-web");
   }
   if(project === 'code-helper') {
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
   }
-
-  console.log(allFiles)
   const filePath = allFiles?.find(file => file.includes(fileName));
-  
-
-
-  console.log(filePath)
   if (filePath) {
     console.log("Reading file:", filePath)
     return await fs.readFile(filePath, 'utf-8');
@@ -250,11 +243,10 @@ function addToFile(filePath: string, line: number, text: string): void {
 }
 
 export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
-  console.log(dirPath)
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   for (let entry of entries) {
     const fullPath = path.join(dirPath, entry.name);
-    if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
+    if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules' || entry.name === '.github') {
       arrayOfFiles = await getAllFiles(fullPath, arrayOfFiles);
     } else if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
       arrayOfFiles.push(fullPath);
