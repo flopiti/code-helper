@@ -5,6 +5,8 @@ import path from "path";
 const projectPath =
   "/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff";
 
+
+const webProjectPath = "/Users/nathanpieraut/local-server/natetrystuff-web";  
 interface Options {
   description: "all" | "one";
 }
@@ -176,7 +178,7 @@ export async function replaceCode(fileName: string, code: string, project:string
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
   }
   if(project === 'natetrystuff-web') {
-    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-web");
+    allFiles = await getAllFiles(webProjectPath);
   }
   if(project === 'code-helper') {
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
@@ -200,7 +202,7 @@ export async function getFileContent(fileName: string, project:string): Promise<
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
   }
   if(project === 'natetrystuff-web') {
-    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-web");
+    allFiles = await getAllFiles(webProjectPath);
   }
   if(project === 'code-helper') {
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
