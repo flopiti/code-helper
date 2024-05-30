@@ -172,8 +172,8 @@ export async function AddHasManyRelationshipBase(body: any) {
   createNewResource(class2, { propertieName: class1.toLowerCase() });
 }
 
-export async function replaceCode(fileName: string, code: string, project:string): Promise<string | null> {
-  let allFiles;
+export async function replaceCode( project:string, files:any[]): Promise<string | null> {
+  let allFiles:any;
   if(project === 'natetrystuff-api') {
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
   }
@@ -183,13 +183,23 @@ export async function replaceCode(fileName: string, code: string, project:string
   if(project === 'code-helper') {
     allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
   }
-  const filePath = allFiles?.find(file => file.includes(fileName));
-  console.log("File path:", filePath)
-  if (filePath) {
-    console.log("Reading file:", filePath);
-    await fs.writeFile(filePath, code, 'utf-8');
-    console.log("File updated successfully");
-    return code;
+
+
+  files = files.map(
+    (file:any)=>{
+      const localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
+      return {
+        ...file,
+        localFilePath
+      }
+    }
+  )
+  if (files && files.length > 0) {
+    for (const file of files) {
+      console.log("Reading file:", file);
+      await fs.writeFile(file.localFilePath, file.code, 'utf-8');
+    }
+    return "Files updated successfully";
   } else {
     return null;
   }
