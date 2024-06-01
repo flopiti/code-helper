@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync } from "fs";
-import fs from "fs/promises";
+import { readFileSync, writeFileSync, constants, PathLike } from "fs";
+import fs, {access, mkdir} from "fs/promises";
 import path from "path";
 
 const projectPath =
@@ -186,8 +186,8 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
   }
 
 
-  files = files.map(
-    (file:any)=>{
+  files = await Promise.all(files.map(
+     async (file:any)=>{
       let localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
       if(!localFilePath) {
         // create the file
@@ -199,7 +199,21 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
           //create a new that file with the web project path and the file name
           const fullPath = path.join(webProjectPath, file.fileName);
 
-          fs.writeFile(fullPath, '');
+          const directoryPath = path.dirname(fullPath);
+          console.log('Directory path:', directoryPath);
+          async function ensureDirectoryExists(directoryPath: PathLike) {
+            try {
+              await access(directoryPath);
+              console.log('Directory exists:', directoryPath);
+            } catch (error) {
+              console.log('Directory does not exist, creating:', directoryPath);
+              await mkdir(directoryPath, { recursive: true });
+              console.log('Directory created:', directoryPath);
+            }
+          }
+          await ensureDirectoryExists(directoryPath);
+          console.log("Creating file:", fullPath);
+          fs.writeFile(fullPath, '', { encoding: 'utf8' });
           localFilePath = fullPath;
         }
         if(project === 'code-helper') {
@@ -212,7 +226,7 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
         localFilePath
       }
     }
-  )
+  ));
 
   if (files && files.length > 0) {
     for (const file of files) {
