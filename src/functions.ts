@@ -188,7 +188,7 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
 
   files = files.map(
     (file:any)=>{
-      const localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
+      let localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
       if(!localFilePath) {
         // create the file
         if(project === 'natetrystuff-api') {
@@ -197,10 +197,10 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
         }
         if(project === 'natetrystuff-web') {
           //create a new that file with the web project path and the file name
-          const fullPath = path.join(webProjectPath, '/natetrystuff-web/', file.fileName);
+          const fullPath = path.join(webProjectPath, file.fileName);
 
           fs.writeFile(fullPath, '');
-
+          localFilePath = fullPath;
         }
         if(project === 'code-helper') {
 
@@ -214,11 +214,9 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
     }
   )
 
-  
-
   if (files && files.length > 0) {
     for (const file of files) {
-      console.log("Reading file:", file);
+      // console.log("Reading file:", file);
       await fs.writeFile(file.localFilePath, file.code, 'utf-8');
     }
     return "Files updated successfully";
@@ -228,7 +226,7 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
 }
 
 export async function getFileContent(fileName: string, project:string): Promise<string | null> {
-  console.log("Getting file content for:", fileName);
+  // console.log("Getting file content for:", fileName);
   let allFiles;
   if(project === 'natetrystuff-api') {
     allFiles = await getAllFiles(apiProjectPath);
