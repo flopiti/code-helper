@@ -6,7 +6,7 @@ const projectPath =
   "/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff";
 
 const apiProjectPath = "/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff";
-const webProjectPath = "/Users/nathanpieraut/local-server/natetrystuff-web"; 
+const webProjectPath = "/Users/nathanpieraut/projects/natetrystuff-web"; 
 const codeHelperPath = "/Users/nathanpieraut/projects/code-helper";
 interface Options {
   description: "all" | "one";
