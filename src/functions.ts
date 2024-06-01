@@ -5,8 +5,9 @@ import path from "path";
 const projectPath =
   "/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff";
 
-
-const webProjectPath = "/Users/nathanpieraut/projects/natetrystuff-web";  
+const apiProjectPath = "/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff";
+const webProjectPath = "/Users/nathanpieraut/local-server/natetrystuff-web"; 
+const codeHelperPath = "/Users/nathanpieraut/projects/code-helper";
 interface Options {
   description: "all" | "one";
 }
@@ -175,7 +176,7 @@ export async function AddHasManyRelationshipBase(body: any) {
 export async function replaceCode( project:string, files:any[]): Promise<string | null> {
   let allFiles:any;
   if(project === 'natetrystuff-api') {
-    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
+    allFiles = await getAllFiles(apiProjectPath);
   }
   if(project === 'natetrystuff-web') {
     allFiles = await getAllFiles(webProjectPath);
@@ -187,20 +188,34 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
 
   files = files.map(
     (file:any)=>{
-      let localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
+      const localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
+      if(!localFilePath) {
+        // create the file
+        if(project === 'natetrystuff-api') {
 
-      if(!localFilePath){
-        //create new file at the base of the project
-        localFilePath = `${webProjectPath}/${file.fileName}`;
-        fs.writeFile(localFilePath, file.code, 'utf-8');
+          
+        }
+        if(project === 'natetrystuff-web') {
+          //create a new that file with the web project path and the file name
+          const fullPath = path.join(webProjectPath, '/natetrystuff-web/', file.fileName);
+
+          fs.writeFile(fullPath, '');
+
+        }
+        if(project === 'code-helper') {
+
+        }
+
       }
-
       return {
         ...file,
         localFilePath
       }
     }
   )
+
+  
+
   if (files && files.length > 0) {
     for (const file of files) {
       console.log("Reading file:", file);
@@ -216,13 +231,13 @@ export async function getFileContent(fileName: string, project:string): Promise<
   console.log("Getting file content for:", fileName);
   let allFiles;
   if(project === 'natetrystuff-api') {
-    allFiles = await getAllFiles("/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff");
+    allFiles = await getAllFiles(apiProjectPath);
   }
   if(project === 'natetrystuff-web') {
     allFiles = await getAllFiles(webProjectPath);
   }
   if(project === 'code-helper') {
-    allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
+    allFiles = await getAllFiles(codeHelperPath);
   }
   const filePath = allFiles?.find(file => file.includes(fileName));
   if (filePath) {
