@@ -6,7 +6,7 @@ const projectPath =
   "/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff";
 
 
-const webProjectPath = "/Users/nathanpieraut/local-server/natetrystuff-web";  
+const webProjectPath = "/Users/nathanpieraut/projects/natetrystuff-web";  
 interface Options {
   description: "all" | "one";
 }
@@ -187,7 +187,14 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
 
   files = files.map(
     (file:any)=>{
-      const localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
+      let localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
+
+      if(!localFilePath){
+        //create new file at the base of the project
+        localFilePath = `${webProjectPath}/${file.fileName}`;
+        fs.writeFile(localFilePath, file.code, 'utf-8');
+      }
+
       return {
         ...file,
         localFilePath
