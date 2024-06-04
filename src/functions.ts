@@ -1,13 +1,10 @@
 import { readFileSync, writeFileSync, constants, PathLike } from "fs";
-import fs, {access, mkdir} from "fs/promises";
+import fs, { access, mkdir } from "fs/promises";
 import path from "path";
 
 const apiProjectPath = "/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff";
-const webProjectPath = "/Users/nathanpieraut/projects/natetrystuff-web"; 
+const webProjectPath = "/Users/nathanpieraut/projects/natetrystuff-web";
 const codeHelperPath = "/Users/nathanpieraut/projects/code-helper";
-
-
-
 
 export async function getProjectsInPath() {
   const dirPath = '/Users/nathanpieraut/projects/';
@@ -15,15 +12,15 @@ export async function getProjectsInPath() {
   const projects = entries.filter(entry => entry.isDirectory()).map(dir => dir.name);
   const projectDetails = await Promise.all(projects.map(async project => {
     const projectType = await getProjectType(dirPath + project);
-
     return {
       name: project,
       path: dirPath + project,
       type: projectType
-    }
+    };
   }));
   return projectDetails;
 }
+
 const getProjectType = async (projectPath: string) => {
   const files = await getAllFiles(projectPath);
 
@@ -40,13 +37,10 @@ const getProjectType = async (projectPath: string) => {
   if((files.find(file => file.endsWith('package.json')))){
     return 'node-js';
   }
-
 }
 
-
-
-export async function replaceCode( project:string, files:any[]): Promise<string | null> {
-  let allFiles:any;
+export async function replaceCode(project: string, files: any[]): Promise<string | null> {
+  let allFiles: any;
   if(project === 'natetrystuff-api') {
     allFiles = await getAllFiles(apiProjectPath);
   }
@@ -54,19 +48,15 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
     allFiles = await getAllFiles(webProjectPath);
   }
   if(project === 'code-helper') {
-    allFiles = await getAllFiles("/Users/nathanpieraut/projects/code-helper");
+    allFiles = await getAllFiles(codeHelperPath);
   }
 
-
   files = await Promise.all(files.map(
-     async (file:any)=>{
-      let localFilePath = allFiles.find((f:any)=>f.includes(file.fileName));
+    async (file: any) => {
+      let localFilePath = allFiles.find((f: any) => f.includes(file.fileName));
       if(!localFilePath) {
         // create the file
-        if(project === 'natetrystuff-api') {
-
-          
-        }
+        if(project === 'natetrystuff-api') { }
         if(project === 'natetrystuff-web') {
           //create a new that file with the web project path and the file name
           const fullPath = path.join(webProjectPath, file.fileName);
@@ -88,15 +78,12 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
           fs.writeFile(fullPath, '', { encoding: 'utf8' });
           localFilePath = fullPath;
         }
-        if(project === 'code-helper') {
-
-        }
-
+        if(project === 'code-helper') { }
       }
       return {
         ...file,
         localFilePath
-      }
+      };
     }
   ));
 
@@ -111,7 +98,7 @@ export async function replaceCode( project:string, files:any[]): Promise<string 
   }
 }
 
-export async function getFileContent(fileName: string, project:string): Promise<string | null> {
+export async function getFileContent(fileName: string, project: string): Promise<string | null> {
   // console.log("Getting file content for:", fileName);
   let allFiles;
   if(project === 'natetrystuff-api') {
@@ -125,15 +112,12 @@ export async function getFileContent(fileName: string, project:string): Promise<
   }
   const filePath = allFiles?.find(file => file.includes(fileName));
   if (filePath) {
-    console.log("Reading file:", filePath)
+    console.log("Reading file:", filePath);
     return await fs.readFile(filePath, 'utf-8');
   } else {
     return null;
   }
 }
-
-
-
 
 export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
@@ -141,31 +125,27 @@ export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
     const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules' || entry.name === '.github') {
       arrayOfFiles = await getAllFiles(fullPath, arrayOfFiles);
-    } else if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
+    } else if (!entry.name.startsWith('.') || entry.name.startsWith('.env') && entry.name !== 'node_modules') {
       arrayOfFiles.push(fullPath);
     }
   }
   return arrayOfFiles;
 }
 
-
-
-
 export async function getAllFilesSpringBoot(dirPath: any) {
   const files = await getAllFiles(dirPath);
   const cleanedFiles = files.map((file) => file.replace(apiProjectPath, ""));
   const selectedFiles = [
-      ...cleanedFiles
-        .filter((file) => file.startsWith("/src/main/java/com/natetrystuff/"))
-        .map((file) => {
-          const match = file.match(
-            /^\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/,
-          );
-          return match ? file : null;
-        }),
-    ,
+    ...cleanedFiles
+      .filter((file) => file.startsWith("/src/main/java/com/natetrystuff/"))
+      .map((file) => {
+        const match = file.match(
+          /^\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/,
+        );
+        return match ? file : null;
+      }),
   ]
-    .filter(Boolean);
+  .filter(Boolean);
   return selectedFiles.map(file => path.basename(file));
 }
 
@@ -173,17 +153,15 @@ export async function getAllFilesNextJs(dirPath: any) {
   const files = await getAllFiles(dirPath);
   const cleanedFiles = files.map((file) => file.replace(webProjectPath, ""));
   const selectedFiles = [
-      ...cleanedFiles
-    
+    ...cleanedFiles
   ]
-    .filter(Boolean);
-    return selectedFiles.map(file => {
-      const parts = file.split(path.sep);
-      if (parts.length >= 3) {
-          return path.join(parts[parts.length - 3], parts[parts.length - 2], parts[parts.length - 1]);
-      } else {
-          return ''; 
-      }
+  .filter(Boolean);
+  return selectedFiles.map(file => {
+    const parts = file.split(path.sep);
+    if (parts.length >= 3) {
+      return path.join(parts[parts.length - 3], parts[parts.length - 2], parts[parts.length - 1]);
+    } else {
+      return '';
+    }
   });
-  
 }
