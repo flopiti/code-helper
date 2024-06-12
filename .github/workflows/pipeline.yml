@@ -40,5 +40,7 @@ jobs:
 
      - name: Copy built files and configuration to server
        run: |
-          rsync -avz --exclude node_modules/ --exclude .git/ ./ ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
-          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && npm install --production"
+         scp -r build/ ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
+         scp package.json ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
+         scp package-lock.json ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
+         ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && npm install --production"
