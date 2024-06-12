@@ -1,0 +1,44 @@
+name: Deploy to DigitalOcean
+
+on:
+ push:
+   branches:
+     - main
+ pull_request:
+   branches:
+     - main
+
+jobs:
+ build-and-deploy:
+   runs-on: ubuntu-latest
+
+   steps:
+     - name: Checkout code
+       uses: actions/checkout@v2
+
+     - name: Set up Node.js
+       uses: actions/setup-node@v2
+       with:
+         node-version: '18'
+
+     - name: Install dependencies
+       run: npm install
+
+     - name: Build Next.js app
+       run: npm run build
+
+     - name: Setup SSH Known Hosts
+       run: |
+         mkdir -p ~/.ssh
+         touch ~/.ssh/known_hosts
+         ssh-keyscan -H ${{ secrets.DROPLET_HOST }} >> ~/.ssh/known_hosts
+
+     - name: Setup SSH Agent
+       uses: webfactory/ssh-agent@v0.5.3
+       with:
+           ssh-private-key: ${{ secrets.DROPLET_SSH_KEY }}
+
+     - name: Copy built files and configuration to server
+       run: |
+         scp -r ./ ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
+         ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "npm install"
