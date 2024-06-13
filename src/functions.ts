@@ -1,18 +1,18 @@
-import { readFileSync, writeFileSync, constants, PathLike } from "fs";
+import { readFileSync, writeFileSync, constants, PathLike, Dirent } from "fs";
 import fs, { access, mkdir } from "fs/promises";
 import path from "path";
 import { config } from 'dotenv';
 
 config();
 
-const apiProjectPath = process.env.API_PROJECT_PATH;
-const webProjectPath = process.env.WEB_PROJECT_PATH;
-const codeHelperPath = process.env.CODE_HELPER_PATH;
-const dirPath = process.env.DIR_PATH;
+const apiProjectPath = process.env.API_PROJECT_PATH || '';
+const webProjectPath = process.env.WEB_PROJECT_PATH || '';
+const codeHelperPath = process.env.CODE_HELPER_PATH || '';
+const dirPath = process.env.DIR_PATH || '';
 
 export async function getProjectsInPath() {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  const projects = entries.filter(entry => entry.isDirectory()).map(dir => dir.name);
+  const projects = entries.filter((entry: Dirent) => entry.isDirectory()).map((entry: Dirent) => entry.name);
   const projectDetails = await Promise.all(projects.map(async project => {
     const projectType = await getProjectType(path.join(dirPath, project));
     return {
@@ -154,7 +154,7 @@ export async function getAllFilesNextJs(dirPath: any) {
     if (parts.length >= 3) {
       return path.join(parts[parts.length - 3], parts[parts.length - 2], parts[parts.length - 1]);
     } else {
-      return '';
+      return ''; 
     }
   });
 }
