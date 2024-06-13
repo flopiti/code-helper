@@ -11,10 +11,10 @@ export async function getProjectsInPath() {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   const projects = entries.filter(entry => entry.isDirectory()).map(dir => dir.name);
   const projectDetails = await Promise.all(projects.map(async project => {
-    const projectType = await getProjectType(dirPath + project);
+    const projectType = await getProjectType(path.join(dirPath, project));
     return {
       name: project,
-      path: dirPath + project,
+      path: path.join(dirPath, project),
       type: projectType
     };
   }));
@@ -40,56 +40,39 @@ const getProjectType = async (projectPath: string) => {
 }
 
 export async function replaceCode(project: string, files: any[]): Promise<string | null> {
-  let allFiles: any;
-  if(project === 'natetrystuff-api') {
-    allFiles = await getAllFiles(apiProjectPath);
+  let projectPath;
+  switch(project) {
+    case 'natetrystuff-api':
+      projectPath = apiProjectPath;
+      break;
+    case 'natetrystuff-web':
+      projectPath = webProjectPath;
+      break;
+    case 'code-helper':
+      projectPath = codeHelperPath;
+      break;
+    default:
+      throw new Error('Unknown project');
   }
-  if(project === 'natetrystuff-web') {
-    allFiles = await getAllFiles(webProjectPath);
-  }
-  if(project === 'code-helper') {
-    allFiles = await getAllFiles(codeHelperPath);
-  }
+  const allFiles = await getAllFiles(projectPath);
 
-  files = await Promise.all(files.map(
-    async (file: any) => {
-      let localFilePath = allFiles.find((f: any) => f.includes(file.fileName));
-      if(!localFilePath) {
-        // create the file
-        if(project === 'natetrystuff-api') { }
-        if(project === 'natetrystuff-web') {
-          //create a new that file with the web project path and the file name
-          const fullPath = path.join(webProjectPath, file.fileName);
-
-          const directoryPath = path.dirname(fullPath);
-          console.log('Directory path:', directoryPath);
-          async function ensureDirectoryExists(directoryPath: PathLike) {
-            try {
-              await access(directoryPath);
-              console.log('Directory exists:', directoryPath);
-            } catch (error) {
-              console.log('Directory does not exist, creating:', directoryPath);
-              await mkdir(directoryPath, { recursive: true });
-              console.log('Directory created:', directoryPath);
-            }
-          }
-          await ensureDirectoryExists(directoryPath);
-          console.log("Creating file:", fullPath);
-          fs.writeFile(fullPath, '', { encoding: 'utf8' });
-          localFilePath = fullPath;
-        }
-        if(project === 'code-helper') { }
-      }
-      return {
-        ...file,
-        localFilePath
-      };
+  files = await Promise.all(files.map(async (file) => {
+    let localFilePath = allFiles.find((f: any) => f.includes(file.fileName));
+    if (!localFilePath) {
+      const fullPath = path.join(projectPath, file.fileName);
+      const directoryPath = path.dirname(fullPath);
+      await ensureDirectoryExists(directoryPath);
+      await fs.writeFile(fullPath, '', { encoding: 'utf8' });
+      localFilePath = fullPath;
     }
-  ));
+    return {
+      ...file,
+      localFilePath
+    };
+  }));
 
   if (files && files.length > 0) {
     for (const file of files) {
-      // console.log("Reading file:", file);
       await fs.writeFile(file.localFilePath, file.code, 'utf-8');
     }
     return "Files updated successfully";
@@ -98,25 +81,32 @@ export async function replaceCode(project: string, files: any[]): Promise<string
   }
 }
 
+async function ensureDirectoryExists(directoryPath: PathLike) {
+  try {
+    await access(directoryPath);
+  } catch (error) {
+    await mkdir(directoryPath, { recursive: true });
+  }
+}
+
 export async function getFileContent(fileName: string, project: string): Promise<string | null> {
-  // console.log("Getting file content for:", fileName);
-  let allFiles;
-  if(project === 'natetrystuff-api') {
-    allFiles = await getAllFiles(apiProjectPath);
+  let projectPath;
+  switch(project) {
+    case 'natetrystuff-api':
+      projectPath = apiProjectPath;
+      break;
+    case 'natetrystuff-web':
+      projectPath = webProjectPath;
+      break;
+    case 'code-helper':
+      projectPath = codeHelperPath;
+      break;
+    default:
+      throw new Error('Unknown project');
   }
-  if(project === 'natetrystuff-web') {
-    allFiles = await getAllFiles(webProjectPath);
-  }
-  if(project === 'code-helper') {
-    allFiles = await getAllFiles(codeHelperPath);
-  }
+  const allFiles = await getAllFiles(projectPath);
   const filePath = allFiles?.find(file => file.includes(fileName));
-  if (filePath) {
-    console.log("Reading file:", filePath);
-    return await fs.readFile(filePath, 'utf-8');
-  } else {
-    return null;
-  }
+  return filePath ? await fs.readFile(filePath, 'utf-8') : null;
 }
 
 export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
