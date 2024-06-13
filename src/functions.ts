@@ -1,15 +1,18 @@
-import { readFileSync, writeFileSync, constants, PathLike } from "fs";
+import { readFileSync, writeFileSync, constants, PathLike, Dirent } from "fs";
 import fs, { access, mkdir } from "fs/promises";
 import path from "path";
+import { config } from 'dotenv';
 
-const apiProjectPath = "/Users/nathanpieraut/projects/natetrystuff-api/natetrystuff";
-const webProjectPath = "/Users/nathanpieraut/projects/natetrystuff-web";
-const codeHelperPath = "/Users/nathanpieraut/projects/code-helper";
+config();
+
+const apiProjectPath = process.env.API_PROJECT_PATH || '';
+const webProjectPath = process.env.WEB_PROJECT_PATH || '';
+const codeHelperPath = process.env.CODE_HELPER_PATH || '';
+const dirPath = process.env.DIR_PATH || '';
 
 export async function getProjectsInPath() {
-  const dirPath = '/Users/nathanpieraut/projects/';
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  const projects = entries.filter(entry => entry.isDirectory()).map(dir => dir.name);
+  const projects = entries.filter((entry: Dirent) => entry.isDirectory()).map((entry: Dirent) => entry.name);
   const projectDetails = await Promise.all(projects.map(async project => {
     const projectType = await getProjectType(path.join(dirPath, project));
     return {
@@ -34,7 +37,7 @@ const getProjectType = async (projectPath: string) => {
   if(files.find(file => file.endsWith('next.config.mjs'))) {
     return 'next-js';
   }
-  if((files.find(file => file.endsWith('package.json')))){
+  if(files.find(file => file.endsWith('package.json'))){
     return 'node-js';
   }
 }
@@ -151,7 +154,7 @@ export async function getAllFilesNextJs(dirPath: any) {
     if (parts.length >= 3) {
       return path.join(parts[parts.length - 3], parts[parts.length - 2], parts[parts.length - 1]);
     } else {
-      return '';
+      return ''; 
     }
   });
 }
