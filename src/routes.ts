@@ -40,8 +40,12 @@ router.post(`/replace-code`, async (req: any, res) => {
 // });
 
 router.get(`/get-projects`, async (req: any, res) => { 
-  const response = await getProjectsInPath();
-  res.status(200).json(response);
+  getProjectsInPath().then(projects => {
+    res.status(200).json(projects);
+  }).catch(error => {
+    console.error('Failed to get projects:', error);
+    res.status(500).json({ error: 'Error in getting the project list' });
+  });
 });
 
 router.get(`/get-all-filenames`, async (req: any, res) => {
