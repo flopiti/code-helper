@@ -44,7 +44,4 @@ jobs:
           scp package.json ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROLETP_HOST }}:/apps/code-helper/
           scp package-lock.json ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
           scp .env.production ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
-          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} \"cd /apps/code-helper && npm install --production\"
-
-
-
+          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && npm install --production"
