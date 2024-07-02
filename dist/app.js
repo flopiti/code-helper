@@ -2,8 +2,12 @@ import fs from "fs/promises";
 import path from "path";
 import { readFileSync, writeFileSync } from "fs";
 import express from "express";
+
+
 const app = express();
+
 app.use(express.json());
+
 app.get("/add-request", (req, res) => {
   processResources(projectPath).then((resources) => {
     console.log("All Resources:", JSON.stringify(resources, null, 2));
