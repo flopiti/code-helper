@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, constants, PathLike, Dirent } from "fs";
-import fs, { access, mkdir } from "fs/promises";
+import fs, { access, mkdir, stat } from "fs/promises";
 import path from "path";
 import { config } from 'dotenv';
 
@@ -11,118 +11,159 @@ const codeHelperPath = process.env.CODE_HELPER_PATH || '';
 const dirPath = process.env.DIR_PATH || '';
 
 export async function getProjectsInPath() {
-  const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  const projects = entries.filter((entry: Dirent) => entry.isDirectory()).map((entry: Dirent) => entry.name);
-  const projectDetails = await Promise.all(projects.map(async project => {
-    const projectType = await getProjectType(path.join(dirPath, project));
-    return {
-      name: project,
-      path: path.join(dirPath, project),
-      type: projectType
-    };
-  }));
-  return projectDetails;
+  try {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    const projects = entries.filter((entry: Dirent) => entry.isDirectory()).map((entry: Dirent) => entry.name);
+    const projectDetails = await Promise.all(projects.map(async project => {
+      const projectType = await getProjectType(path.join(dirPath, project));
+      return {
+        name: project,
+        path: path.join(dirPath, project),
+        type: projectType
+      };
+    }));
+    return projectDetails;
+  } catch (error:any) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Directory not found: ${dirPath}`);
+    } else {
+      throw error;
+    }
+  }
 }
 
 const getProjectType = async (projectPath: string) => {
-  const files = await getAllFiles(projectPath);
-
-  const pomFile = files.find(file => file.endsWith('pom.xml'));
-  if (pomFile) {
-    const data = await fs.readFile(pomFile, 'utf-8');
-    if (data.includes('spring-boot-starter-parent')) {
-      return 'spring-boot';
+  try {
+    const files = await getAllFiles(projectPath);
+    const pomFile = files.find(file => file.endsWith('pom.xml'));
+    if (pomFile) {
+      const data = await fs.readFile(pomFile, 'utf-8');
+      if (data.includes('spring-boot-starter-parent')) {
+        return 'spring-boot';
+      }
     }
-  }
-  if(files.find(file => file.endsWith('next.config.mjs'))) {
-    return 'next-js';
-  }
-  if(files.find(file => file.endsWith('package.json'))){
-    return 'node-js';
+    if(files.find(file => file.endsWith('next.config.mjs'))) {
+      return 'next-js';
+    }
+    if(files.find(file => file.endsWith('package.json'))){
+      return 'node-js';
+    }
+  } catch (error:any) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`File not found: ${projectPath}`);
+    } else {
+      throw error;
+    }
   }
 }
 
 export async function replaceCode(project: string, files: any[]): Promise<string | null> {
-  let projectPath;
-  switch(project) {
-    case 'natetrystuff-api':
-      projectPath = apiProjectPath;
-      break;
-    case 'natetrystuff-web':
-      projectPath = webProjectPath;
-      break;
-    case 'code-helper':
-      projectPath = codeHelperPath;
-      break;
-    default:
-      throw new Error('Unknown project');
-  }
-  const allFiles = await getAllFiles(projectPath);
-
-  files = await Promise.all(files.map(async (file) => {
-    let localFilePath = allFiles.find((f: any) => f.includes(file.fileName));
-    if (!localFilePath) {
-      const fullPath = path.join(projectPath, file.fileName);
-      const directoryPath = path.dirname(fullPath);
-      await ensureDirectoryExists(directoryPath);
-      await fs.writeFile(fullPath, '', { encoding: 'utf8' });
-      localFilePath = fullPath;
+  try {
+    let projectPath;
+    switch(project) {
+      case 'natetrystuff-api':
+        projectPath = apiProjectPath;
+        break;
+      case 'natetrystuff-web':
+        projectPath = webProjectPath;
+        break;
+      case 'code-helper':
+        projectPath = codeHelperPath;
+        break;
+      default:
+        throw new Error('Unknown project');
     }
-    return {
-      ...file,
-      localFilePath
-    };
-  }));
-
-  if (files && files.length > 0) {
-    for (const file of files) {
-      await fs.writeFile(file.localFilePath, file.code, 'utf-8');
+    const allFiles = await getAllFiles(projectPath);
+    files = await Promise.all(files.map(async (file) => {
+      let localFilePath = allFiles.find((f: any) => f.includes(file.fileName));
+      if (!localFilePath) {
+        const fullPath = path.join(projectPath, file.fileName);
+        const directoryPath = path.dirname(fullPath);
+        await ensureDirectoryExists(directoryPath);
+        await fs.writeFile(fullPath, '', { encoding: 'utf8' });
+        localFilePath = fullPath;
+      }
+      return {
+        ...file,
+        localFilePath
+      };
+    }));
+    if (files && files.length > 0) {
+      for (const file of files) {
+        await fs.writeFile(file.localFilePath, file.code, 'utf-8');
+      }
+      return "Files updated successfully";
+    } else {
+      return null;
     }
-    return "Files updated successfully";
-  } else {
-    return null;
+  } catch (error:any) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`File or directory not found during file processing.`);
+    } else {
+      throw error;
+    }
   }
 }
 
 async function ensureDirectoryExists(directoryPath: PathLike) {
   try {
     await access(directoryPath);
-  } catch (error) {
-    await mkdir(directoryPath, { recursive: true });
+  } catch (error:any) {
+    if (error.code === 'ENOENT') {
+      await mkdir(directoryPath, { recursive: true });
+    } else {
+      throw error;  // Re-throw all other errors to be handled elsewhere
+    }
   }
 }
 
 export async function getFileContent(fileName: string, project: string): Promise<string | null> {
-  let projectPath;
-  switch(project) {
-    case 'natetrystuff-api':
-      projectPath = apiProjectPath;
-      break;
-    case 'natetrystuff-web':
-      projectPath = webProjectPath;
-      break;
-    case 'code-helper':
-      projectPath = codeHelperPath;
-      break;
-    default:
-      throw new Error('Unknown project');
+  try {
+    let projectPath;
+    switch(project) {
+      case 'natetrystuff-api':
+        projectPath = apiProjectPath;
+        break;
+      case 'natetrystuff-web':
+        projectPath = webProjectPath;
+        break;
+      case 'code-helper':
+        projectPath = codeHelperPath;
+        break;
+      default:
+        throw new Error('Unknown project');
+    }
+    const allFiles = await getAllFiles(projectPath);
+    const filePath = allFiles?.find(file => file.includes(fileName));
+    return filePath ? await fs.readFile(filePath, 'utf-8') : null;
+  } catch (error:any) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Requested file not found: ${fileName}`);
+    } else {
+      throw error;
+    }
   }
-  const allFiles = await getAllFiles(projectPath);
-  const filePath = allFiles?.find(file => file.includes(fileName));
-  return filePath ? await fs.readFile(filePath, 'utf-8') : null;
 }
 
 export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
-  const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  for (let entry of entries) {
-    const fullPath = path.join(dirPath, entry.name);
-    if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules' || entry.name === '.github') {
-      arrayOfFiles = await getAllFiles(fullPath, arrayOfFiles);
-    } else if (!entry.name.startsWith('.') || entry.name.startsWith('.env') && entry.name !== 'node_modules') {
-      arrayOfFiles.push(fullPath);
+  try {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    for (let entry of entries) {
+      const fullPath = path.join(dirPath, entry.name);
+      if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules' || entry.name === '.github') {
+        arrayOfFiles = await getAllFiles(fullPath, arrayOfFiles);
+      } else if (!entry.name.startsWith('.') || entry.name.startsWith('.env') && entry.name !== 'node_modules') {
+        arrayOfFiles.push(fullPath);
+      }
+    }
+    return arrayOfFiles;
+  } catch (error:any) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Directory not found during file recursion: ${dirPath}`);
+    } else {
+      throw error;
     }
   }
-  return arrayOfFiles;
 }
 
 export async function getAllFilesSpringBoot(dirPath: any) {
