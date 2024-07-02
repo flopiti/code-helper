@@ -6,19 +6,7 @@ import {
   getAllFilesSpringBoot,
   getAllFilesNextJs,
 } from "./functions";
-// import { createNewResource, AddHasManyRelationshipBase, processResources } from "./apiFunctions";
 const router = express.Router();
-
-// router.post("/create-new-resource/:id", (req: any, res) => {
-//   const { id } = req.params;
-//   createNewResource(id, req.body.data);
-//   res.status(200).json({ message: "received" });
-// });
-
-// router.post("/has-many", (req: any, res) => {
-//   AddHasManyRelationshipBase(req.body.data);
-//   res.status(200).json({ message: "received" });
-// });
 
 router.get(`/get-file`, async (req:any, res) => {
   try {
@@ -30,8 +18,13 @@ router.get(`/get-file`, async (req:any, res) => {
   }
 });
 router.post(`/replace-code`, async (req: any, res) => {
-  replaceCode(req.body.data.project, req.body.data.files)
-  res.status(200).json({ message: "received" });
+  try {
+    await replaceCode(req.body.data.project, req.body.data.files);
+    res.status(200).json({ message: "received" });
+  } catch (error) {
+    console.log('Error handling POST request:', error);
+    res.status(500).json({ error: 'Failed to replace the code' });
+  }
 });
 
 // router.get(`/spring-boot-classes`, async (req: any, res) => { 
@@ -49,19 +42,18 @@ router.get(`/get-projects`, async (req: any, res) => {
 });
 
 router.get(`/get-all-filenames`, async (req: any, res) => {
-  console.log(req.query);
-
-  if(req.query.type === 'spring-boot') {
-    const response = await getAllFilesSpringBoot(`/Users/nathanpieraut/projects/${req.query.project}`);
+  try {
+    console.log(req.query);
+    let response;
+    if(req.query.type === 'spring-boot') {
+      response = await getAllFilesSpringBoot(`/Users/nathanpieraut/projects/${req.query.project}`);
+    } else if(req.query.type === 'next-js' || req.query.type === 'node-js') {
+      response = await getAllFilesNextJs(`/Users/nathanpieraut/projects/${req.query.project}`);
+    }
     res.status(200).json(response);
-  }
-  else if(req.query.type === 'next-js') {
-    const response = await getAllFilesNextJs(`/Users/nathanpieraut/projects/${req.query.project}`);
-    res.status(200).json(response);
-  }
-  else if(req.query.type === 'node-js') {
-    const response = await getAllFilesNextJs(`/Users/nathanpieraut/projects/${req.query.project}`);
-    res.status(200).json(response);
+  } catch (error) {
+    console.log('Error handling GET request:', error);
+    res.status(500).json({ error: 'Failed to retrieve files' });
   }
 });
 
