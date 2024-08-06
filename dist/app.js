@@ -8,5 +8,5 @@ const routes_1 = __importDefault(require("./routes")); // Import the router from
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(routes_1.default);
-const PORT = process.env.PORT || 1234;
+const PORT = process.env.PORT || 3030;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -169,18 +169,17 @@ export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
 export async function getAllFilesSpringBoot(dirPath: any) {
   const files = await getAllFiles(dirPath);
   const cleanedFiles = files.map((file) => file.replace(apiProjectPath, ""));
-  const selectedFiles = [
+  return[
     ...cleanedFiles
-      .filter((file) => file.startsWith("/src/main/java/com/natetrystuff/"))
+      .filter((file) => file.startsWith("/natetrystuff/src/main/java/com/natetrystuff/"))
       .map((file) => {
         const match = file.match(
-          /^\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/,
+          /^\/natetrystuff\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/,
         );
         return match ? file : null;
       }),
   ]
   .filter(Boolean);
-  return selectedFiles.map(file => path.basename(file));
 }
 
 export async function getAllFilesNextJs(dirPath: any) {
