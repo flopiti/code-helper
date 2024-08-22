@@ -8,9 +8,8 @@ config();
 const apiProjectPath = process.env.API_PROJECT_PATH || '';
 const webProjectPath = process.env.WEB_PROJECT_PATH || '';
 const codeHelperPath = process.env.CODE_HELPER_PATH || '';
-const dirPath = process.env.DIR_PATH || '';
 
-export async function getProjectsInPath() {
+export async function getProjectsInPath(dirPath:string) {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
     const projects = entries.filter((entry: Dirent) => entry.isDirectory()).map((entry: Dirent) => entry.name);
