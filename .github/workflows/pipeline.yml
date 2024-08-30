@@ -45,3 +45,6 @@ jobs:
           scp package-lock.json ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
           scp .env.production ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
           ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && npm install --production"
+
+      - name: Restart the app
+        run: ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && systemctl restart code-helper"
