@@ -170,6 +170,7 @@ export async function getAllFilesSpringBoot(dirPath: any) {
   const files = await getAllFiles(dirPath);
   console.log('files:', files);
   const cleanedFiles = files.map((file) => file.replace(apiProjectPath, ""));
+  console.log('cleanedFiles:', cleanedFiles);
   return[
     ...cleanedFiles
       .filter((file) => file.startsWith("/natetrystuff/src/main/java/com/natetrystuff/"))
