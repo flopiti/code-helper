@@ -31,7 +31,8 @@ router.post(`/replace-code`, async (req, res) => {
 //   res.status(200).json(response);
 // });
 router.get(`/get-projects`, async (req, res) => {
-    (0, functions_1.getProjectsInPath)().then(projects => {
+    console.log(req.query);
+    (0, functions_1.getProjectsInPath)(req.query.dirPath).then(projects => {
         res.status(200).json(projects);
     }).catch(error => {
         console.error('Failed to get projects:', error);

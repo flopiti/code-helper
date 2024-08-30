@@ -34,8 +34,7 @@ const dotenv_1 = require("dotenv");
 const apiProjectPath = process.env.API_PROJECT_PATH || '';
 const webProjectPath = process.env.WEB_PROJECT_PATH || '';
 const codeHelperPath = process.env.CODE_HELPER_PATH || '';
-const dirPath = process.env.DIR_PATH || '';
-async function getProjectsInPath() {
+async function getProjectsInPath(dirPath) {
     try {
         const entries = await promises_1.default.readdir(dirPath, { withFileTypes: true });
         const projects = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
@@ -204,7 +203,9 @@ async function getAllFiles(dirPath, arrayOfFiles = []) {
 }
 exports.getAllFiles = getAllFiles;
 async function getAllFilesSpringBoot(dirPath) {
+    console.log('dirPath:', dirPath);
     const files = await getAllFiles(dirPath);
+    console.log('files:', files);
     const cleanedFiles = files.map((file) => file.replace(apiProjectPath, ""));
     return [
         ...cleanedFiles
