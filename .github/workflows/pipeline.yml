@@ -47,4 +47,4 @@ jobs:
           ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && npm install --production"
 
       - name: Restart the app
-        run: ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && systemctl restart code-helper"
+        run: ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && systemctl restart code-helper.service"
