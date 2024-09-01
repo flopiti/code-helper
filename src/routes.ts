@@ -5,6 +5,7 @@ import {
   getProjectsInPath,
   getAllFilesSpringBoot,
   getAllFilesNextJs,
+  getAllFiles,
 } from "./functions";
 const router = express.Router();
 
@@ -27,11 +28,6 @@ router.post(`/replace-code`, async (req: any, res) => {
   }
 });
 
-// router.get(`/spring-boot-classes`, async (req: any, res) => { 
-//   const response = await processResources();
-//   res.status(200).json(response);
-// });
-
 router.get(`/get-projects`, async (req: any, res) => { 
   console.log(req.query);
   getProjectsInPath(req.query.dirPath).then(projects => {
@@ -51,6 +47,10 @@ router.get(`/get-all-filenames`, async (req: any, res) => {
       console.log(response);
     } else if(req.query.type === 'next-js' || req.query.type === 'node-js') {
       response = await getAllFilesNextJs(`${process.env.DIR_PATH}/${req.query.project}`);
+    }
+    else if(req.query.type === 'unknown') {
+      console.log(`${process.env.DIR_PATH}/${req.query.project}`)
+      response = await getAllFiles(`${process.env.DIR_PATH}/${req.query.project}`);
     }
     res.status(200).json(response);
   } catch (error) {
