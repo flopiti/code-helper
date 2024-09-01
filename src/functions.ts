@@ -47,6 +47,7 @@ const getProjectType = async (projectPath: string) => {
     if(files.find(file => file.endsWith('package.json'))){
       return 'node-js';
     }
+    return 'unknown';
   } catch (error:any) {
     if (error.code === 'ENOENT') {
       throw new Error(`File not found: ${projectPath}`);
@@ -70,7 +71,8 @@ export async function replaceCode(project: string, files: any[]): Promise<string
         projectPath = codeHelperPath;
         break;
       default:
-        throw new Error('Unknown project');
+        projectPath = project;
+        break;
     }
     const allFiles = await getAllFiles(projectPath);
     files = await Promise.all(files.map(async (file) => {
@@ -130,7 +132,8 @@ export async function getFileContent(fileName: string, project: string): Promise
         projectPath = codeHelperPath;
         break;
       default:
-        throw new Error('Unknown project');
+        projectPath = `${process.env.DIR_PATH}/${project}`;
+        break;
     }
     const allFiles = await getAllFiles(projectPath);
     const filePath = allFiles?.find(file => file.includes(fileName));
