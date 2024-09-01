@@ -71,7 +71,7 @@ export async function replaceCode(project: string, files: any[]): Promise<string
         projectPath = codeHelperPath;
         break;
       default:
-        projectPath = project;
+        projectPath = `${process.env.DIR_PATH}/${project}`;
         break;
     }
     const allFiles = await getAllFiles(projectPath);
