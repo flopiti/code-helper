@@ -6,6 +6,7 @@ import {
   getAllFilesSpringBoot,
   getAllFilesNextJs,
   getAllFiles,
+  getGitHeadRef,
 } from "./functions";
 const router = express.Router();
 
@@ -28,6 +29,16 @@ router.post(`/replace-code`, async (req: any, res) => {
   }
 });
 
+router.get(`get-current-branch-name`, async (req: any, res) => {
+  try {
+    const branchName = await getGitHeadRef(req.query.dirPath);
+    res.status(200).json({ branchName });
+  } catch (error) {
+    console.log('Error handling GET request:', error);
+    res.status(500).json({ error: 'Failed to get the current branch name' });
+  }
+}
+);
 router.get(`/get-projects`, async (req: any, res) => { 
   console.log(req.query);
   getProjectsInPath(req.query.dirPath).then(projects => {

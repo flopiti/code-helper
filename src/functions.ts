@@ -146,7 +146,27 @@ export async function getFileContent(fileName: string, project: string): Promise
     }
   }
 }
+export async function getGitHeadRef(projectPath: string): Promise<string> {
+  try {
+    const headFilePath = path.join(projectPath, '.git', 'HEAD');
+    const headFileContent = await fs.readFile(headFilePath, 'utf-8');
 
+    if (headFileContent.startsWith('ref: ')) {
+      const refPath = headFileContent.slice(5).trim(); // Remove 'ref: ' and trim whitespace
+      const branchName = path.basename(refPath); // Get the branch name
+      return branchName;
+    } else {
+      const commitHash = headFileContent.trim();
+      return commitHash;
+    }
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Git HEAD file not found in the project path: ${projectPath}`);
+    } else {
+      throw error;
+    }
+  }
+}
 export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
