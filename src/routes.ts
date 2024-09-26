@@ -29,7 +29,7 @@ router.post(`/replace-code`, async (req: any, res) => {
   }
 });
 
-router.get(`get-current-branch-name`, async (req: any, res) => {
+router.get(`/get-current-branch-name`, async (req: any, res) => {
   try {
     const branchName = await getGitHeadRef(req.query.dirPath);
     res.status(200).json({ branchName });
