@@ -40,7 +40,7 @@ router.get(`/current-branch`, async (req: any, res) => {
 }
 );
 router.get(`/get-projects`, async (req: any, res) => { 
-  console.log(req.query);
+  console.log('get-projects is called');
   getProjectsInPath(req.query.dirPath).then(projects => {
     res.status(200).json(projects);
   }).catch(error => {
@@ -51,11 +51,9 @@ router.get(`/get-projects`, async (req: any, res) => {
 
 router.get(`/get-all-filenames`, async (req: any, res) => {
   try {
-    console.log(req.query);
     let response;
     if(req.query.type === 'spring-boot') {
       response = await getAllFilesSpringBoot(`${process.env.DIR_PATH}/${req.query.project}`);
-      console.log(response);
     } else if(req.query.type === 'next-js' || req.query.type === 'node-js') {
       response = await getAllFilesNextJs(`${process.env.DIR_PATH}/${req.query.project}`);
     }
