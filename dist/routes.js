@@ -26,10 +26,16 @@ router.post(`/replace-code`, async (req, res) => {
         res.status(500).json({ error: 'Failed to replace the code' });
     }
 });
-// router.get(`/spring-boot-classes`, async (req: any, res) => { 
-//   const response = await processResources();
-//   res.status(200).json(response);
-// });
+router.get(`/current-branch`, async (req, res) => {
+    try {
+        const branchName = await (0, functions_1.getGitHeadRef)(req.query.dirPath);
+        res.status(200).json({ branchName });
+    }
+    catch (error) {
+        console.log('Error handling GET request:', error);
+        res.status(500).json({ error: 'Failed to get the current branch name' });
+    }
+});
 router.get(`/get-projects`, async (req, res) => {
     console.log(req.query);
     (0, functions_1.getProjectsInPath)(req.query.dirPath).then(projects => {
@@ -49,6 +55,10 @@ router.get(`/get-all-filenames`, async (req, res) => {
         }
         else if (req.query.type === 'next-js' || req.query.type === 'node-js') {
             response = await (0, functions_1.getAllFilesNextJs)(`${process.env.DIR_PATH}/${req.query.project}`);
+        }
+        else if (req.query.type === 'unknown') {
+            console.log(`${process.env.DIR_PATH}/${req.query.project}`);
+            response = await (0, functions_1.getAllFiles)(`${process.env.DIR_PATH}/${req.query.project}`);
         }
         res.status(200).json(response);
     }

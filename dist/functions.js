@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllFilesNextJs = exports.getAllFilesSpringBoot = exports.getAllFiles = exports.getFileContent = exports.replaceCode = exports.getProjectsInPath = void 0;
+exports.getAllFilesNextJs = exports.getAllFilesSpringBoot = exports.getAllFiles = exports.getGitHeadRef = exports.getFileContent = exports.replaceCode = exports.getProjectsInPath = void 0;
 const promises_1 = __importStar(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = require("dotenv");
@@ -74,6 +74,7 @@ const getProjectType = async (projectPath) => {
         if (files.find(file => file.endsWith('package.json'))) {
             return 'node-js';
         }
+        return 'unknown';
     }
     catch (error) {
         if (error.code === 'ENOENT') {
@@ -98,7 +99,8 @@ async function replaceCode(project, files) {
                 projectPath = codeHelperPath;
                 break;
             default:
-                throw new Error('Unknown project');
+                projectPath = `${process.env.DIR_PATH}/${project}`;
+                break;
         }
         const allFiles = await getAllFiles(projectPath);
         files = await Promise.all(files.map(async (file) => {
@@ -162,7 +164,8 @@ async function getFileContent(fileName, project) {
                 projectPath = codeHelperPath;
                 break;
             default:
-                throw new Error('Unknown project');
+                projectPath = `${process.env.DIR_PATH}/${project}`;
+                break;
         }
         const allFiles = await getAllFiles(projectPath);
         const filePath = allFiles === null || allFiles === void 0 ? void 0 : allFiles.find(file => file.includes(fileName));
@@ -178,6 +181,30 @@ async function getFileContent(fileName, project) {
     }
 }
 exports.getFileContent = getFileContent;
+async function getGitHeadRef(projectPath) {
+    try {
+        const headFilePath = path_1.default.join(projectPath, '.git', 'HEAD');
+        const headFileContent = await promises_1.default.readFile(headFilePath, 'utf-8');
+        if (headFileContent.startsWith('ref: ')) {
+            const refPath = headFileContent.slice(5).trim(); // Remove 'ref: ' and trim whitespace
+            const branchName = path_1.default.basename(refPath); // Get the branch name
+            return branchName;
+        }
+        else {
+            const commitHash = headFileContent.trim();
+            return commitHash;
+        }
+    }
+    catch (error) {
+        if (error.code === 'ENOENT') {
+            throw new Error(`Git HEAD file not found in the project path: ${projectPath}`);
+        }
+        else {
+            throw error;
+        }
+    }
+}
+exports.getGitHeadRef = getGitHeadRef;
 async function getAllFiles(dirPath, arrayOfFiles = []) {
     try {
         const entries = await promises_1.default.readdir(dirPath, { withFileTypes: true });
