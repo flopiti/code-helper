@@ -30,6 +30,7 @@ router.post(`/replace-code`, async (req: any, res) => {
 });
 
 router.get(`/current-branch`, async (req: any, res) => {
+  console.log("halo")
   try {
     const branchName = await getGitHeadRef(req.query.dirPath);
     res.status(200).json({ branchName });
