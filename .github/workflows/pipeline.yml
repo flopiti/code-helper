@@ -22,10 +22,12 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build Next.js app
-        run: npm run build
+      - name: Build application
+        run: |
+          set -e
+          npm run build
 
       - name: Setup SSH Known Hosts
         run: |
@@ -36,7 +38,7 @@ jobs:
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
-            ssh-private-key: ${{ secrets.DROPLET_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DROPLET_SSH_KEY }}
 
       - name: Copy built files and configuration to server
         run: |
@@ -44,7 +46,11 @@ jobs:
           scp package.json ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
           scp package-lock.json ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/
           scp .env.production ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }}:/apps/code-helper/.env
-          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && npm install --production"
+
+      - name: Install dependencies on server
+        run: |
+          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "cd /apps/code-helper && npm ci --only=production"
 
       - name: Restart the app
-        run: ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "sudo systemctl restart code-helper.service"
+        run: |
+          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_HOST }} "sudo systemctl restart code-helper.service"
