@@ -42,6 +42,7 @@ router.get(`/current-branch`, async (req: any, res) => {
 );
 router.get(`/get-projects`, async (req: any, res) => { 
   console.log('get-projects is called');
+  console.log('atchou')
   getProjectsInPath(req.query.dirPath).then(projects => {
     res.status(200).json(projects);
   }).catch(error => {
