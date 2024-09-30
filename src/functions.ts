@@ -212,12 +212,5 @@ export async function getAllFilesNextJs(dirPath: any) {
     ...cleanedFiles
   ]
   .filter(Boolean);
-  return selectedFiles.map(file => {
-    const parts = file.split(path.sep);
-    if (parts.length >= 3) {
-      return path.join(parts[parts.length - 3], parts[parts.length - 2], parts[parts.length - 1]);
-    } else {
-      return ''; 
-    }
-  });
+  return selectedFiles;
 }
