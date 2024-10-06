@@ -52,16 +52,17 @@ router.get(`/get-projects`, async (req: any, res) => {
   });
 });
 router.get('/git-diff/:project', async (req, res) => {
-  console.log('alo')
-  console.log(req.params.project)
+  console.log('alo');
+  console.log(req.params.project);
   try {
     const project = req.params.project;
-    console.log(project)
+    console.log(project);
     const diffOutput = await getGitDiff(project);
-    console.log(diffOutput)
-    res.send(diffOutput);
+    console.log(diffOutput);
+    res.status(200).json({ diff: diffOutput });
   } catch (error) {
-    res.status(500).send(error);
+    console.log('Error handling GET request:', error);
+    res.status(500).json({ error: 'Failed to get git diff', details: error });
   }
 });
 router.get(`/get-all-filenames`, async (req: any, res) => {
