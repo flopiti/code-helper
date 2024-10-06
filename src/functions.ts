@@ -224,8 +224,9 @@ export async function getAllFilesNextJs(dirPath: any) {
 export async function getGitDiff(project: string): Promise<string> {
   try {
     const projectPath = getProjectPath(project);
+    console.log(`projectPath: ${projectPath}`);
     const { stdout, stderr } = await execAsync('git diff', { cwd: projectPath });
-
+    
     if (stderr) {
       throw new Error(`Git diff error: ${stderr}`);
     }

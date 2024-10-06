@@ -58,7 +58,7 @@ router.get('/git-diff/:project', async (req, res) => {
     const project = req.params.project;
     console.log(project)
     const diffOutput = await getGitDiff(project);
-    // console.log(diffOutput)
+    console.log(diffOutput)
     res.send(diffOutput);
   } catch (error) {
     res.status(500).send(error);
