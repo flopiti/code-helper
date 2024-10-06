@@ -7,6 +7,7 @@ import {
   getAllFilesNextJs,
   getAllFiles,
   getGitHeadRef,
+  getGitDiff,
 } from "./functions";
 const router = express.Router();
 
@@ -50,7 +51,18 @@ router.get(`/get-projects`, async (req: any, res) => {
     res.status(500).json({ error: 'Error in getting the project list' });
   });
 });
-
+router.get('/git-diff/:project', async (req, res) => {
+  console.log('alo')
+  try {
+    const project = req.params.project;
+    console.log(project)
+    const diffOutput = await getGitDiff(project);
+    // console.log(diffOutput)
+    res.send(diffOutput);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
 router.get(`/get-all-filenames`, async (req: any, res) => {
   try {
     let response;
