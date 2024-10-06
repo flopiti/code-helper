@@ -53,6 +53,7 @@ router.get(`/get-projects`, async (req: any, res) => {
 });
 router.get('/git-diff/:project', async (req, res) => {
   console.log('alo')
+  console.log(req.params.project)
   try {
     const project = req.params.project;
     console.log(project)
