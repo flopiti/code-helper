@@ -8,11 +8,12 @@ import {
   getAllFiles,
   getGitHeadRef,
   getGitDiff,
-  switchAndPullMain
+  switchAndPullMain,
+  checkoutNewBranch
 } from "./functions";
 const router = express.Router();
 
-router.get(`/get-file`, async (req:any, res) => {
+router.get(`/get-file`, async (req: any, res) => {
   try {
     const response = await getFileContent(req.query.fileName, req.query.project);
     res.status(200).json(response);
@@ -93,6 +94,18 @@ router.get(`/go-main/:projectName`, async (req: any, res) => {
   } catch (error) {
     console.error('Error handling go-main request:', error);
     res.status(500).json({ error: 'Failed to switch and pull main.' });
+  }
+});
+
+router.get('/create-branch', async (req: any, res) => {
+  try {
+    const project = req.query.project;
+    const branchName = req.query.branchName;
+    await checkoutNewBranch(project, branchName);
+    res.status(200).json({ message: `Created and switched to branch ${branchName}` });
+  } catch (error) {
+    console.error('Error handling create-branch request:', error);
+    res.status(500).json({ error: 'Failed to create new branch.' });
   }
 });
 
