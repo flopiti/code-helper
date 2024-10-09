@@ -242,3 +242,14 @@ export async function getGitDiff(project: string): Promise<string> {
     }
   }
 }
+
+export async function switchAndPullMain(project: string): Promise<void> {
+  try {
+    const projectPath = getProjectPath(project);
+    await execAsync('git switch main', { cwd: projectPath });
+    await execAsync('git pull origin main', { cwd: projectPath });
+    console.log('Switched to main and pulled the latest updates');
+  } catch (error: any) {
+    throw new Error(`Failed to switch or pull from main: ${error.message}`);
+  }
+}
