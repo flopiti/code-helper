@@ -255,3 +255,15 @@ export async function switchAndPullMain(project: string): Promise<void> {
     throw new Error(`Failed to switch or pull from main: ${error.message}`);
   }
 }
+
+export async function checkoutNewBranch(project: string, branchName: string): Promise<void> {
+  console.log(`Creating and switching to a new branch: ${branchName}`);
+  try {
+    const projectPath = getProjectPath(project);
+    console.log(`projectPath: ${projectPath}`);
+    await execAsync(`git checkout -b ${branchName}`, { cwd: projectPath });
+    console.log(`Created and switched to new branch: ${branchName}`);
+  } catch (error: any) {
+    throw new Error(`Failed to create new branch: ${branchName}, error: ${error.message}`);
+  }
+}
