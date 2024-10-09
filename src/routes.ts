@@ -8,6 +8,7 @@ import {
   getAllFiles,
   getGitHeadRef,
   getGitDiff,
+  switchAndPullMain
 } from "./functions";
 const router = express.Router();
 
@@ -81,6 +82,17 @@ router.get(`/get-all-filenames`, async (req: any, res) => {
   } catch (error) {
     console.log('Error handling GET request:', error);
     res.status(500).json({ error: 'Failed to retrieve files' });
+  }
+});
+
+router.get(`/go-main/:projectName`, async (req: any, res) => {
+  try {
+    const projectName = req.params.projectName;
+    await switchAndPullMain(projectName);
+    res.status(200).json({ message: 'Switched and pulled main successfully.' });
+  } catch (error) {
+    console.error('Error handling go-main request:', error);
+    res.status(500).json({ error: 'Failed to switch and pull main.' });
   }
 });
 
