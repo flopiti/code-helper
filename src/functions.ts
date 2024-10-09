@@ -244,8 +244,10 @@ export async function getGitDiff(project: string): Promise<string> {
 }
 
 export async function switchAndPullMain(project: string): Promise<void> {
+  console.log('we are switching and pulling main');
   try {
     const projectPath = getProjectPath(project);
+    console.log(`projectPath: ${projectPath}`);
     await execAsync('git switch main', { cwd: projectPath });
     await execAsync('git pull origin main', { cwd: projectPath });
     console.log('Switched to main and pulled the latest updates');
