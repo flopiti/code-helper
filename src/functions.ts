@@ -243,6 +243,20 @@ export async function getGitDiff(project: string): Promise<string> {
   }
 }
 
+export async function sendIt(project: string, commitMessage: string, branchName: string): Promise<void> {
+  console.log('we are adding, committing, and pushing changes');
+  try {
+    const projectPath = getProjectPath(project);
+    console.log(`projectPath: ${projectPath}`);
+    await execAsync('git add .', { cwd: projectPath });
+    await execAsync(`git commit -m "${commitMessage}"`, { cwd: projectPath });
+    await execAsync(`git push origin ${branchName}`, { cwd: projectPath });
+    console.log('Changes added, committed, and pushed successfully');
+  } catch (error: any) {
+    throw new Error(`Failed to send changes: ${error.message}`);
+  }
+}
+
 export async function switchAndPullMain(project: string): Promise<void> {
   console.log('we are switching and pulling main');
   try {

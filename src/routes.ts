@@ -9,7 +9,8 @@ import {
   getGitHeadRef,
   getGitDiff,
   switchAndPullMain,
-  checkoutNewBranch
+  checkoutNewBranch,
+  sendIt
 } from "./functions";
 const router = express.Router();
 
@@ -29,6 +30,19 @@ router.post(`/replace-code`, async (req: any, res) => {
   } catch (error) {
     console.log('Error handling POST request:', error);
     res.status(500).json({ error: 'Failed to replace the code' });
+  }
+});
+
+router.get(`/send-it`, async (req: any, res) => {
+  try {
+    const project = req.query.project;
+    const commitMessage = req.query.commitMessage;
+    const branchName = req.query.branchName;
+    await sendIt(project, commitMessage, branchName);
+    res.status(200).json({ message: 'Changes added, committed, and pushed successfully' });
+  } catch (error) {
+    console.error('Error handling send-it request:', error);
+    res.status(500).json({ error: 'Failed to send changes' });
   }
 });
 
