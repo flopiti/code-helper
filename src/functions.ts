@@ -281,3 +281,30 @@ export async function checkoutNewBranch(project: string, branchName: string): Pr
     throw new Error(`Failed to create new branch: ${branchName}, error: ${error.message}`);
   }
 }
+
+export async function findDescComments(dirPath: string) {
+  try {
+    const allFiles = await getAllFiles(dirPath);
+    const descCommentsFiles: { filename: string, comment: string }[] = [];
+
+    for (let file of allFiles) {
+      const fileContents = await fs.readFile(file, 'utf-8');
+      const lines = fileContents.split('\n');
+      for (let line of lines) {
+        const commentIndex = line.indexOf('//DESC:');
+        if (commentIndex !== -1) {
+          const comment = line.substring(commentIndex + 7).trim();
+          descCommentsFiles.push({ filename: file, comment });
+        }
+      }
+    }
+
+    return descCommentsFiles;
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Error finding files or comments in: ${dirPath}, error: ${error.message}`);
+    } else {
+      throw error;
+    }
+  }
+}
