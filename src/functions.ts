@@ -282,7 +282,7 @@ export async function checkoutNewBranch(project: string, branchName: string): Pr
   }
 }
 
-export async function findDescComments(dirPath: string) {
+export async function findDescComments(dirPath: string, project:string) {
   try {
     const allFiles = await getAllFiles(dirPath);
     const descCommentsFiles: { filename: string, comment: string }[] = [];
@@ -297,9 +297,10 @@ export async function findDescComments(dirPath: string) {
 
           // Cleaning filename based on project type
           let cleanedFileName = file;
-          if (dirPath.includes('spring-boot')) {
+          if (project=='natetrystuff-api') {
             cleanedFileName = file.replace(apiProjectPath, '');
-          } else if (dirPath.includes('next-js') || dirPath.includes('node-js')) {
+
+          } else if (project=='natetrystuff-web') {
             cleanedFileName = file.replace(webProjectPath, '');
           }
 

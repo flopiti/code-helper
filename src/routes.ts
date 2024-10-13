@@ -127,7 +127,7 @@ router.get('/create-branch', async (req: any, res) => {
 router.get('/get-desc-comments', async (req: any, res) => {
   try {
     const dirPath = `${process.env.DIR_PATH}/${req.query.project}`;
-    const descComments = await findDescComments(dirPath);
+    const descComments = await findDescComments(dirPath, req.query.project);
     res.status(200).json(descComments);
   } catch (error) {
     console.error('Error handling request to get DESC comments:', error);
