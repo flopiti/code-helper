@@ -294,7 +294,16 @@ export async function findDescComments(dirPath: string) {
         const commentIndex = line.indexOf('//DESC:');
         if (commentIndex !== -1) {
           const comment = line.substring(commentIndex + 7).trim();
-          descCommentsFiles.push({ filename: file, comment });
+
+          // Cleaning filename based on project type
+          let cleanedFileName = file;
+          if (dirPath.includes('spring-boot')) {
+            cleanedFileName = file.replace(apiProjectPath, '');
+          } else if (dirPath.includes('next-js') || dirPath.includes('node-js')) {
+            cleanedFileName = file.replace(webProjectPath, '');
+          }
+
+          descCommentsFiles.push({ filename: cleanedFileName, comment });
         }
       }
     }
