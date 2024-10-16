@@ -86,8 +86,13 @@ const getProjectType = async (projectPath: string) => {
 };
 
 export async function replaceCode(project: string, files: any[]): Promise<string | null> {
+
+  console.log('about to replace code')
+  console.log(project)
+  console.log(files)
   try {
     const projectPath = getProjectPath(project);
+    console.log('project path: ' + projectPath)
     const allFiles = await getAllFiles(projectPath);
     files = await Promise.all(
       files.map(async (file) => {
