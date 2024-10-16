@@ -86,19 +86,14 @@ const getProjectType = async (projectPath: string) => {
 };
 
 export async function replaceCode(project: string, files: any[]): Promise<string | null> {
-
-  console.log('about to replace code')
-  console.log(project)
-  console.log(files)
   try {
     const projectPath = getProjectPath(project);
-    console.log('project path: ' + projectPath)
     const allFiles = await getAllFiles(projectPath);
     files = await Promise.all(
       files.map(async (file) => {
-        let localFilePath = allFiles.find((f: any) => f.includes(file.fileName));
+        let localFilePath = allFiles.find((f: any) => f.includes(file.name));
         if (!localFilePath) {
-          const fullPath = path.join(projectPath, file.fileName);
+          const fullPath = path.join(projectPath, file.name);
           const directoryPath = path.dirname(fullPath);
           await ensureDirectoryExists(directoryPath);
           await fs.writeFile(fullPath, '', { encoding: 'utf8' });
@@ -112,7 +107,7 @@ export async function replaceCode(project: string, files: any[]): Promise<string
     );
     if (files && files.length > 0) {
       for (const file of files) {
-        await fs.writeFile(file.localFilePath, file.code, 'utf-8');
+        await fs.writeFile(file.localFilePath, file.content, 'utf-8');
       }
       return 'Files updated successfully';
     } else {
@@ -227,17 +222,12 @@ export async function getAllFilesNextJs(dirPath: any) {
 }
 
 export async function getGitDiff(project: string): Promise<string> {
-  console.log('we are getting the git diff');
   try {
     const projectPath = getProjectPath(project);
-    console.log(`projectPath: ${projectPath}`);
     const { stdout, stderr } = await execAsync('git diff', { cwd: projectPath });
-
-    console.log(`stdout: ${stdout}`);
     if (stderr) {
       throw new Error(`Git diff error: ${stderr}`);
     }
-
     return stdout;
   } catch (error: any) {
     if (error.code === 'ENOENT') {
@@ -249,39 +239,30 @@ export async function getGitDiff(project: string): Promise<string> {
 }
 
 export async function sendIt(project: string, commitMessage: string, branchName: string): Promise<void> {
-  console.log('we are adding, committing, and pushing changes');
   try {
     const projectPath = getProjectPath(project);
-    console.log(`projectPath: ${projectPath}`);
     await execAsync('git add .', { cwd: projectPath });
     await execAsync(`git commit -m "${commitMessage}"`, { cwd: projectPath });
     await execAsync(`git push origin ${branchName}`, { cwd: projectPath });
-    console.log('Changes added, committed, and pushed successfully');
   } catch (error: any) {
     throw new Error(`Failed to send changes: ${error.message}`);
   }
 }
 
 export async function switchAndPullMain(project: string): Promise<void> {
-  console.log('we are switching and pulling main');
   try {
     const projectPath = getProjectPath(project);
-    console.log(`projectPath: ${projectPath}`);
     await execAsync('git switch main', { cwd: projectPath });
     await execAsync('git pull origin main', { cwd: projectPath });
-    console.log('Switched to main and pulled the latest updates');
   } catch (error: any) {
     throw new Error(`Failed to switch or pull from main: ${error.message}`);
   }
 }
 
 export async function checkoutNewBranch(project: string, branchName: string): Promise<void> {
-  console.log(`Creating and switching to a new branch: ${branchName}`);
   try {
     const projectPath = getProjectPath(project);
-    console.log(`projectPath: ${projectPath}`);
     await execAsync(`git checkout -b ${branchName}`, { cwd: projectPath });
-    console.log(`Created and switched to new branch: ${branchName}`);
   } catch (error: any) {
     throw new Error(`Failed to create new branch: ${branchName}, error: ${error.message}`);
   }
