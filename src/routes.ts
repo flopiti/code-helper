@@ -11,7 +11,8 @@ import {
   switchAndPullMain,
   checkoutNewBranch,
   sendIt,
-  findDescComments
+  findDescComments,
+  getAllFileDescriptions // Import the new function
 } from "./functions";
 const router = express.Router();
 
@@ -132,6 +133,17 @@ router.get('/get-desc-comments', async (req: any, res) => {
   } catch (error) {
     console.error('Error handling request to get DESC comments:', error);
     res.status(500).json({ error: 'Failed to get DESC comments.' });
+  }
+});
+
+// New route to fetch all file descriptions
+router.get('/get-all-file-descriptions', async (req: any, res) => {
+  try {
+    const descriptions = await getAllFileDescriptions(req.query.project);
+    res.status(200).json(descriptions);
+  } catch (error) {
+    console.error('Error handling request to get file descriptions:', error);
+    res.status(500).json({ error: 'Failed to get file descriptions.' });
   }
 });
 
