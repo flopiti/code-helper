@@ -32,6 +32,20 @@ function getProjectPath(project: string): string {
   return projectPath;
 }
 
+// New function to get all file descriptions
+export async function getAllFileDescriptions() {
+  try {
+    const response = await fetch('/api/file-descriptions');
+    if (!response.ok) {
+      throw new Error('Failed to get file descriptions');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching file descriptions:', error);
+    throw error;
+  }
+}
+
 export async function getProjectsInPath(dirPath: string) {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
@@ -69,10 +83,10 @@ const getProjectType = async (projectPath: string) => {
         return 'spring-boot';
       }
     }
-    if (files.find((file) => file.endsWith('next.config.mjs'))) {
+    if (files.find((file) => file.endsWith('next.config.mjs')));
       return 'next-js';
     }
-    if (files.find((file) => file.endsWith('package.json'))) {
+    if (files.find((file) => file.endsWith('package.json')));
       return 'node-js';
     }
     return 'unknown';
@@ -91,9 +105,9 @@ export async function replaceCode(project: string, files: any[]): Promise<string
     const allFiles = await getAllFiles(projectPath);
     files = await Promise.all(
       files.map(async (file) => {
-        let localFilePath = allFiles.find((f: any) => f.includes(file.name));
+        let localFilePath = allFiles.find((f: any) => f.includes(file.fileName));
         if (!localFilePath) {
-          const fullPath = path.join(projectPath, file.name);
+          const fullPath = path.join(projectPath, file.fileName);
           const directoryPath = path.dirname(fullPath);
           await ensureDirectoryExists(directoryPath);
           await fs.writeFile(fullPath, '', { encoding: 'utf8' });
@@ -107,7 +121,7 @@ export async function replaceCode(project: string, files: any[]): Promise<string
     );
     if (files && files.length > 0) {
       for (const file of files) {
-        await fs.writeFile(file.localFilePath, file.content, 'utf-8');
+        await fs.writeFile(file.localFilePath, file.code, 'utf-8');
       }
       return 'Files updated successfully';
     } else {
@@ -222,12 +236,17 @@ export async function getAllFilesNextJs(dirPath: any) {
 }
 
 export async function getGitDiff(project: string): Promise<string> {
+  console.log('we are getting the git diff');
   try {
     const projectPath = getProjectPath(project);
+    console.log(`projectPath: ${projectPath}`);
     const { stdout, stderr } = await execAsync('git diff', { cwd: projectPath });
+
+    console.log(`stdout: ${stdout}`);
     if (stderr) {
       throw new Error(`Git diff error: ${stderr}`);
     }
+
     return stdout;
   } catch (error: any) {
     if (error.code === 'ENOENT') {
@@ -239,36 +258,45 @@ export async function getGitDiff(project: string): Promise<string> {
 }
 
 export async function sendIt(project: string, commitMessage: string, branchName: string): Promise<void> {
+  console.log('we are adding, committing, and pushing changes');
   try {
     const projectPath = getProjectPath(project);
+    console.log(`projectPath: ${projectPath}`);
     await execAsync('git add .', { cwd: projectPath });
     await execAsync(`git commit -m "${commitMessage}"`, { cwd: projectPath });
     await execAsync(`git push origin ${branchName}`, { cwd: projectPath });
+    console.log('Changes added, committed, and pushed successfully');
   } catch (error: any) {
     throw new Error(`Failed to send changes: ${error.message}`);
   }
 }
 
 export async function switchAndPullMain(project: string): Promise<void> {
+  console.log('we are switching and pulling main');
   try {
     const projectPath = getProjectPath(project);
+    console.log(`projectPath: ${projectPath}`);
     await execAsync('git switch main', { cwd: projectPath });
     await execAsync('git pull origin main', { cwd: projectPath });
+    console.log('Switched to main and pulled the latest updates');
   } catch (error: any) {
     throw new Error(`Failed to switch or pull from main: ${error.message}`);
   }
 }
 
 export async function checkoutNewBranch(project: string, branchName: string): Promise<void> {
+  console.log(`Creating and switching to a new branch: ${branchName}`);
   try {
     const projectPath = getProjectPath(project);
+    console.log(`projectPath: ${projectPath}`);
     await execAsync(`git checkout -b ${branchName}`, { cwd: projectPath });
+    console.log(`Created and switched to new branch: ${branchName}`);
   } catch (error: any) {
     throw new Error(`Failed to create new branch: ${branchName}, error: ${error.message}`);
   }
 }
 
-export async function findDescComments(dirPath: string, project:string) {
+export async function findDescComments(dirPath: string) {
   try {
     const allFiles = await getAllFiles(dirPath);
     const descCommentsFiles: { filename: string, comment: string }[] = [];
@@ -283,10 +311,9 @@ export async function findDescComments(dirPath: string, project:string) {
 
           // Cleaning filename based on project type
           let cleanedFileName = file;
-          if (project=='natetrystuff-api') {
+          if (dirPath.includes('spring-boot')) {
             cleanedFileName = file.replace(apiProjectPath, '');
-
-          } else if (project=='natetrystuff-web') {
+          } else if (dirPath.includes('next-js') || dirPath.includes('node-js')) {
             cleanedFileName = file.replace(webProjectPath, '');
           }
 
