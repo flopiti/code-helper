@@ -124,9 +124,9 @@ export async function replaceCode(project: string, files: any[]): Promise<string
     const allFiles = await getAllFiles(projectPath);
     files = await Promise.all(
       files.map(async (file) => {
-        let localFilePath = allFiles.find((f: any) => f.includes(file.fileName));
+        let localFilePath = allFiles.find((f: any) => f.includes(file.name));
         if (!localFilePath) {
-          const fullPath = path.join(projectPath, file.fileName);
+          const fullPath = path.join(projectPath, file.name);
           const directoryPath = path.dirname(fullPath);
           await ensureDirectoryExists(directoryPath);
           await fs.writeFile(fullPath, '', { encoding: 'utf8' });
@@ -140,8 +140,8 @@ export async function replaceCode(project: string, files: any[]): Promise<string
     );
     if (files && files.length > 0) {
       for (const file of files) {
-        await fs.writeFile(file.localFilePath, file.code, 'utf-8');
-      }
+        await fs.writeFile(file.localfilepath, file.content, 'utf-8');
+            }
       return 'Files updated successfully';
     } else {
       return null;
@@ -315,7 +315,7 @@ export async function checkoutNewBranch(project: string, branchName: string): Pr
   }
 }
 
-export async function findDescComments(dirPath: string) {
+export async function findDescComments(dirPath: string, project:string) {
   try {
     const allFiles = await getAllFiles(dirPath);
     const descCommentsFiles: { filename: string, comment: string }[] = [];
@@ -330,9 +330,9 @@ export async function findDescComments(dirPath: string) {
 
           // Cleaning filename based on project type
           let cleanedFileName = file;
-          if (dirPath.includes('spring-boot')) {
+          if (project=='natetrystuff-api') {
             cleanedFileName = file.replace(apiProjectPath, '');
-          } else if (dirPath.includes('next-js') || dirPath.includes('node-js')) {
+          } else if (project=='natetrystuff-web') {
             cleanedFileName = file.replace(webProjectPath, '');
           }
 
