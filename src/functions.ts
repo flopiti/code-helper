@@ -33,11 +33,11 @@ function getProjectPath(project: string): string {
 }
 
 // New function to get all file descriptions by counting FEAT and DESC comments
-export async function getAllFileDescriptions() {
+export async function getAllFileDescriptions(project: string) {
   try {
-    const dirPath = process.env.DIR_PATH;
+    const dirPath = getProjectPath(project);
     if (!dirPath) {
-      throw new Error('Environment variable DIR_PATH is not set');
+      throw new Error('Project path could not be determined');
     }
 
     const allFiles = await getAllFiles(dirPath);
@@ -51,7 +51,7 @@ export async function getAllFileDescriptions() {
 
       fileDescriptions.push({
         id: path.basename(filename, path.extname(filename)),
-        fileName: path.basename(filename),
+        name: path.basename(filename),
         FEAT: featComments,
         DESC: descComments
       });

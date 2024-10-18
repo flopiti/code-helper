@@ -139,7 +139,7 @@ router.get('/get-desc-comments', async (req: any, res) => {
 // New route to fetch all file descriptions
 router.get('/get-all-file-descriptions', async (req: any, res) => {
   try {
-    const descriptions = await getAllFileDescriptions();
+    const descriptions = await getAllFileDescriptions(req.query.project);
     res.status(200).json(descriptions);
   } catch (error) {
     console.error('Error handling request to get file descriptions:', error);
