@@ -91,6 +91,7 @@ export async function getProjectsInPath(dirPath: string) {
   }
 }
 
+
 const getProjectType = async (projectPath: string) => {
   try {
     const files = await getAllFiles(projectPath);
@@ -101,10 +102,10 @@ const getProjectType = async (projectPath: string) => {
         return 'spring-boot';
       }
     }
-    if (files.find((file) => file.endsWith('next.config.mjs')));
+    if (files.find((file) => file.endsWith('next.config.mjs'))) {
       return 'next-js';
     }
-    if (files.find((file) => file.endsWith('package.json')));
+    if (files.find((file) => file.endsWith('package.json'))) {
       return 'node-js';
     }
     return 'unknown';
