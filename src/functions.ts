@@ -36,11 +36,13 @@ function getProjectPath(project: string): string {
 export async function getAllFileDescriptions(project: string) {
   try {
     const dirPath = getProjectPath(project);
+    console.log(`dirPath: ${dirPath}`);
     if (!dirPath) {
       throw new Error('Project path could not be determined');
     }
 
     const allFiles = await getAllFiles(dirPath);
+    console.log(`allFiles: ${allFiles}`);
     const fileDescriptions = [];
 
     for (const filename of allFiles) {
@@ -48,10 +50,9 @@ export async function getAllFileDescriptions(project: string) {
 
       const featComments = (content.match(/\/\/FEAT/g) || []).length;
       const descComments = (content.match(/\/\/DESC/g) || []).length;
-
       fileDescriptions.push({
         id: path.basename(filename, path.extname(filename)),
-        name: path.basename(filename),
+        name: filename.replace(`${dirPath}/`, ''),
         FEAT: featComments,
         DESC: descComments
       });
