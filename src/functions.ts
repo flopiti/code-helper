@@ -141,8 +141,7 @@ export async function replaceCode(project: string, files: any[]): Promise<string
     );
     if (files && files.length > 0) {
       for (const file of files) {
-        await fs.writeFile(file.localfilepath, file.content, 'utf-8');
-            }
+        await fs.writeFile(file.localFilePath, file.content, 'utf-8');            }
       return 'Files updated successfully';
     } else {
       return null;
