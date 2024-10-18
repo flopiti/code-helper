@@ -32,16 +32,34 @@ function getProjectPath(project: string): string {
   return projectPath;
 }
 
-// New function to get all file descriptions
+// New function to get all file descriptions by counting FEAT and DESC comments
 export async function getAllFileDescriptions() {
   try {
-    const response = await fetch('/api/file-descriptions');
-    if (!response.ok) {
-      throw new Error('Failed to get file descriptions');
+    const dirPath = process.env.DIR_PATH;
+    if (!dirPath) {
+      throw new Error('Environment variable DIR_PATH is not set');
     }
-    return await response.json();
+
+    const allFiles = await getAllFiles(dirPath);
+    const fileDescriptions = [];
+
+    for (const filename of allFiles) {
+      const content = await fs.readFile(filename, 'utf-8');
+
+      const featComments = (content.match(/\/\/FEAT/g) || []).length;
+      const descComments = (content.match(/\/\/DESC/g) || []).length;
+
+      fileDescriptions.push({
+        id: path.basename(filename, path.extname(filename)),
+        fileName: path.basename(filename),
+        FEAT: featComments,
+        DESC: descComments
+      });
+    }
+
+    return fileDescriptions;
   } catch (error) {
-    console.error('Error fetching file descriptions:', error);
+    console.error('Error processing file descriptions:', error);
     throw error;
   }
 }
