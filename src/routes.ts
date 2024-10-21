@@ -36,6 +36,7 @@ router.post(`/replace-code`, async (req: any, res) => {
 });
 
 router.get(`/send-it`, async (req: any, res) => {
+  console.log('send it !!')
   try {
     const project = req.query.project;
     const commitMessage = req.query.commitMessage;
@@ -49,7 +50,6 @@ router.get(`/send-it`, async (req: any, res) => {
 });
 
 router.get(`/current-branch`, async (req: any, res) => {
-  console.log("halo")
   try {
     const branchName = await getGitHeadRef(req.query.dirPath);
     res.status(200).json({ branchName });
@@ -60,8 +60,6 @@ router.get(`/current-branch`, async (req: any, res) => {
 }
 );
 router.get(`/get-projects`, async (req: any, res) => { 
-  console.log('get-projects is called');
-  console.log('atchou')
   getProjectsInPath(req.query.dirPath).then(projects => {
     res.status(200).json(projects);
   }).catch(error => {
@@ -70,8 +68,6 @@ router.get(`/get-projects`, async (req: any, res) => {
   });
 });
 router.get('/git-diff/:project', async (req, res) => {
-  console.log('alo');
-  console.log(req.params.project);
   try {
     const project = req.params.project;
     console.log(project);
