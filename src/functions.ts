@@ -121,6 +121,7 @@ const getProjectType = async (projectPath: string) => {
 
 export async function replaceCode(project: string, files: any[]): Promise<string | null> {
   try {
+    console.log(project)
     const projectPath = getProjectPath(project);
     const allFiles = await getAllFiles(projectPath);
     files = await Promise.all(
@@ -209,6 +210,8 @@ export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
   try {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
     for (let entry of entries) {
+      console.log(path)
+      console.log(path)
       const fullPath = path.join(dirPath, entry.name);
       if (
         entry.isDirectory() &&
