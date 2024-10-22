@@ -26,6 +26,7 @@ router.get(`/get-file`, async (req: any, res) => {
   }
 });
 router.post(`/replace-code`, async (req: any, res) => {
+  console.log(req.body.data)
   try {
     await replaceCode(req.body.data.project, req.body.data.files);
     res.status(200).json({ message: "received" });
