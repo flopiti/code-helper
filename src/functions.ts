@@ -51,7 +51,7 @@ export async function getAllFileDescriptions(project: string) {
 
       fileDescriptions.push({
         id: path.basename(filename, path.extname(filename)),
-        name: path.basename(filename),
+        name: filename.replace(`${dirPath}/`, ''),
         FEAT: featComments,
         DESC: descComments
       });
