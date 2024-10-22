@@ -83,6 +83,8 @@ router.get(`/get-all-filenames`, async (req: any, res) => {
   try {
     let response;
     if(req.query.type === 'spring-boot') {
+      console.log(`${process.env.DIR_PATH}/${req.query.project}`)
+
       response = await getAllFilesSpringBoot(`${process.env.DIR_PATH}/${req.query.project}`);
     } else if(req.query.type === 'next-js' || req.query.type === 'node-js') {
       response = await getAllFilesNextJs(`${process.env.DIR_PATH}/${req.query.project}`);
