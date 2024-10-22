@@ -234,6 +234,7 @@ export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
 
 export async function getAllFilesSpringBoot(dirPath: any) {
   const files = await getAllFiles(dirPath);
+  console.log(apiProjectPath)
   const cleanedFiles = files.map((file) => file.replace(apiProjectPath, ''));
   return [
     ...cleanedFiles
