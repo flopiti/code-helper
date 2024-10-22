@@ -36,13 +36,11 @@ function getProjectPath(project: string): string {
 export async function getAllFileDescriptions(project: string) {
   try {
     const dirPath = getProjectPath(project);
-    console.log(`dirPath: ${dirPath}`);
     if (!dirPath) {
       throw new Error('Project path could not be determined');
     }
 
     const allFiles = await getAllFiles(dirPath);
-    console.log(`allFiles: ${allFiles}`);
     const fileDescriptions = [];
 
     for (const filename of allFiles) {
@@ -50,9 +48,10 @@ export async function getAllFileDescriptions(project: string) {
 
       const featComments = (content.match(/\/\/FEAT/g) || []).length;
       const descComments = (content.match(/\/\/DESC/g) || []).length;
+
       fileDescriptions.push({
         id: path.basename(filename, path.extname(filename)),
-        name: filename.replace(`${dirPath}/`, ''),
+        name: path.basename(filename),
         FEAT: featComments,
         DESC: descComments
       });
@@ -141,7 +140,8 @@ export async function replaceCode(project: string, files: any[]): Promise<string
     );
     if (files && files.length > 0) {
       for (const file of files) {
-        await fs.writeFile(file.localFilePath, file.content, 'utf-8');            }
+        await fs.writeFile(file.localfilepath, file.content, 'utf-8');
+            }
       return 'Files updated successfully';
     } else {
       return null;
@@ -237,12 +237,16 @@ export async function getAllFilesSpringBoot(dirPath: any) {
   const cleanedFiles = files.map((file) => file.replace(apiProjectPath, ''));
   return [
     ...cleanedFiles
-      .filter((file) => file.startsWith('/natetrystuff/src/main/java/com/natetrystuff/'))
+      .filter((file) => file.startsWith('/natetrystuff/src/main/java/com/natetrystuff/') || file.startsWith('/natetrystuff/src/main/resources/'))
       .map((file) => {
         const match = file.match(
           /^\/natetrystuff\/src\/main\/java\/com\/natetrystuff\/([^\/]+)(\/|$)/
         );
-        return match ? file : null;
+        if (match) return file;
+        const resourceMatch = file.match(
+          /^\/natetrystuff\/src\/main\/resources\/([^\/]+)(\/|$)/
+        );
+        return resourceMatch ? file : null;
       }),
   ].filter(Boolean);
 }
