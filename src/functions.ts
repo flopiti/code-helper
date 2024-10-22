@@ -4,6 +4,7 @@ import path from "path";
 import { config } from 'dotenv';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { dir } from "console";
 
 config();
 
@@ -233,6 +234,7 @@ export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
 }
 
 export async function getAllFilesSpringBoot(dirPath: any) {
+  console.log(dirPath)
   const files = await getAllFiles(dirPath);
   console.log(apiProjectPath)
   const cleanedFiles = files.map((file) => file.replace(apiProjectPath, ''));
