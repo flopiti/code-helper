@@ -13,7 +13,6 @@ import {
   sendIt,
   findDescComments,
   getAllFileDescriptions, // Import the new function
-  upsertToPinecone // Import the upsert function
 } from "./functions";
 const router = express.Router();
 
@@ -147,16 +146,5 @@ router.get('/get-all-file-descriptions', async (req: any, res) => {
   }
 });
 
-// New route to upsert vectors into Pinecone
-router.post('/upsert-vectors', async (req, res) => {
-  try {
-    const { namespace, vectors } = req.body;
-    const result = await upsertToPinecone(namespace, vectors);
-    res.status(200).json({ message: result });
-  } catch (error) {
-    console.error('Error upserting vectors:', error);
-    res.status(500).json({ error: 'Failed to upsert vectors.', details: error.message });
-  }
-});
 
 export default router;

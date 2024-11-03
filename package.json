@@ -14,8 +14,7 @@
   "dependencies": {
     "chokidar": "^3.6.0",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "pinecone-client": "^2.0.0"
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
