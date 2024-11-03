@@ -371,3 +371,16 @@ export async function findDescComments(dirPath: string, project:string) {
     }
   }
 }
+
+// New function to upsert vectors into Pinecone
+export async function upsertToPinecone(namespace: string, vectors: any[]) {
+  const pc = new Pinecone({ apiKey: '24353792-dce7-4d9b-820f-9d30202e3669' });
+  const index = pc.index('quickstart');
+  try {
+    await index.namespace(namespace).upsert(vectors);
+    return 'Upsert successful';
+  } catch (error) {
+    console.error('Error upserting to Pinecone:', error);
+    throw error;
+  }
+}
