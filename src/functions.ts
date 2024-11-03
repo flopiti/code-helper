@@ -6,9 +6,6 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { dir } from "console";
 
-// New function to upsert vectors into Pinecone
-import { PineconeClient } from 'pinecone-client';
-
 config();
 
 const apiProjectPath = process.env.API_PROJECT_PATH || '';
