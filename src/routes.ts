@@ -9,7 +9,7 @@ import {
   getGitHeadRef,
 } from "./functions";
 import { checkoutNewBranch, getGitDiff, sendIt, switchAndPullMain } from "./git";
-import { checkApiStatus, stopApi, startApi } from "./dev-environments";
+import { checkApiStatus, stopApi, startApi, compileApi } from "./dev-environments";
 
 const router = express.Router();
 
@@ -155,6 +155,11 @@ router.get('/start-api', (req: Request, res: Response) => {
 ).catch((error) => {
     res.status(500).json({ error: error.message });
 });
+});
+
+router.get('/compile-api', (req: Request, res: Response) => {
+  const status = compileApi();
+  res.status(200).json({ status });
 });
 
 export default router;

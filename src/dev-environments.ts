@@ -45,3 +45,25 @@ export function startApi(): Promise<string> {
   export function checkApiStatus(): string {
     return apiProcess ? 'API is running.' : 'API is not running.';
   }
+
+  export function compileApi(): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const projectPath = `${getProjectPath('natetrystuff-api')}/natetrystuff`;
+        exec(
+            'mvn clean install',
+            { cwd: projectPath },
+            (error, stdout, stderr) => {
+                if (error) {
+                    console.error('Error compiling API:', error);
+                    console.error('stderr:', stderr);
+                    return reject(error);
+                }
+                if (stderr) {
+                    console.error('stderr:', stderr);
+                }
+                console.log('stdout:', stdout);
+                resolve('API compiled successfully.');
+            }
+        );
+    });
+}
