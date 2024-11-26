@@ -1,10 +1,9 @@
-import { readFileSync, writeFileSync, constants, PathLike, Dirent } from "fs";
-import fs, { access, mkdir, stat } from "fs/promises";
+import { PathLike, Dirent } from "fs";
+import fs, { access, mkdir } from "fs/promises";
 import path from "path";
 import { config } from 'dotenv';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { dir } from "console";
 
 config();
 
