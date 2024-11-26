@@ -61,7 +61,6 @@ export async function getProjectsInPath(dirPath: string) {
   }
 }
 
-
 const getProjectType = async (projectPath: string) => {
   try {
     const files = await getAllFiles(projectPath);
