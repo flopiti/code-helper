@@ -254,27 +254,11 @@ export async function getGitDiff(project: string): Promise<string> {
 }
 
 export async function sendIt(project: string, commitMessage: string, branchName: string): Promise<void> {
-  console.log('Starting the git push process');
-  console.log(`Project: ${project}`);
-  console.log(`Commit Message: ${commitMessage}`);
-  console.log(`Branch: ${branchName}`);
   try {
     const projectPath = getProjectPath(project);
-    console.log(`Project path resolved to: ${projectPath}`);
-
-    console.log('Executing git add .');
-    const addResult = await execAsync('git add .', { cwd: projectPath });
-    console.log(`git add output: ${addResult.stdout}`);
-
-    console.log(`Executing git commit -m "${commitMessage}"`);
-    const commitResult = await execAsync(`git commit -m "${commitMessage}"`, { cwd: projectPath });
-    console.log(`git commit output: ${commitResult.stdout}`);
-
-    console.log(`Executing git push origin ${branchName}`);
-    const pushResult = await execAsync(`git push origin ${branchName}`, { cwd: projectPath });
-    console.log(`git push output: ${pushResult.stdout}`);
-
-    console.log('Changes successfully added, committed, and pushed');
+    await execAsync('git add .', { cwd: projectPath });
+    await execAsync(`git commit -m "${commitMessage}"`, { cwd: projectPath });
+    await execAsync(`git push origin ${branchName}`, { cwd: projectPath });
   } catch (error: any) {
     console.error(`Error during git push process: ${error.message}`);
     throw new Error(`Failed to send changes: ${error.message}`);

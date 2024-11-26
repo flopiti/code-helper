@@ -35,7 +35,6 @@ router.post(`/replace-code`, async (req: any, res) => {
 });
 
 router.get(`/send-it`, async (req: any, res) => {
-  console.log('send it !!')
   try {
     const project = req.query.project;
     const commitMessage = req.query.commitMessage;
