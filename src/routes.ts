@@ -8,9 +8,8 @@ import {
   getAllFiles,
   getGitHeadRef,
   getGitDiff,
-  switchAndPullMain,
 } from "./functions";
-import { checkoutNewBranch, sendIt } from "./git";
+import { checkoutNewBranch, sendIt, switchAndPullMain } from "./git";
 const router = express.Router();
 
 router.get(`/get-file`, async (req: any, res) => {

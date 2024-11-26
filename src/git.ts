@@ -20,3 +20,13 @@ export async function sendIt(project: string, commitMessage: string, branchName:
       throw new Error(`Failed to create new branch: ${branchName}, error: ${error.message}`);
     }
   }
+
+  export async function switchAndPullMain(project: string): Promise<void> {
+    try {
+      const projectPath = getProjectPath(project);
+      await execAsync('git switch main', { cwd: projectPath });
+      await execAsync('git pull origin main', { cwd: projectPath });
+    } catch (error: any) {
+      throw new Error(`Failed to switch or pull from main: ${error.message}`);
+    }
+  }
