@@ -9,6 +9,7 @@ import {
   getGitHeadRef,
 } from "./functions";
 import { checkoutNewBranch, getGitDiff, sendIt, switchAndPullMain } from "./git";
+import { checkApiStatus, stopApi, startApi } from "./dev-environments";
 
 const router = express.Router();
 
@@ -133,18 +134,27 @@ router.get('/create-branch', async (req: Request, res: Response) => {
 });
 
 router.get('/check-api-status', (req: Request, res: Response) => {
-  res.status(200).json({ message: "API is running." });
-}
+  const status = checkApiStatus();
+  res.status(200).json({ status });
+} 
 );
 
 router.get('/stop-api', (req: Request, res: Response) => {
-  res.status(200).json({ message: "API stopped successfully." });
-}
-);
+  stopApi().then((response) => {
+    res.status(200).json({ message: response });
+  }
+).catch((error) => {
+    res.status(500).json({ error: error.message });
+  });
+});
 
 router.get('/start-api', (req: Request, res: Response) => {
-  res.status(200).json({ message: "API started successfully." });
-}
-);
+  startApi().then((response) => {
+    res.status(200).json({ message: response });
+  }
+).catch((error) => {
+    res.status(500).json({ error: error.message });
+});
+});
 
 export default router;
