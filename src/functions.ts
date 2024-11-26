@@ -230,25 +230,3 @@ export async function getAllFilesNextJs(dirPath: any) {
   const selectedFiles = [...cleanedFiles].filter(Boolean);
   return selectedFiles;
 }
-
-export async function getGitDiff(project: string): Promise<string> {
-  console.log('we are getting the git diff');
-  try {
-    const projectPath = getProjectPath(project);
-    console.log(`projectPath: ${projectPath}`);
-    const { stdout, stderr } = await execAsync('git diff', { cwd: projectPath });
-
-    console.log(`stdout: ${stdout}`);
-    if (stderr) {
-      throw new Error(`Git diff error: ${stderr}`);
-    }
-
-    return stdout;
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      throw new Error(`Git not found or not installed on the system.`);
-    } else {
-      throw new Error(`Failed to get git diff: ${error.message}`);
-    }
-  }
-}

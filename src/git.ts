@@ -30,3 +30,20 @@ export async function sendIt(project: string, commitMessage: string, branchName:
       throw new Error(`Failed to switch or pull from main: ${error.message}`);
     }
   }
+
+export async function getGitDiff(project: string): Promise<string> {
+    try {
+      const projectPath = getProjectPath(project);
+      const { stdout, stderr } = await execAsync('git diff', { cwd: projectPath });
+      if (stderr) {
+        throw new Error(`Git diff error: ${stderr}`);
+      }
+      return stdout;
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        throw new Error(`Git not found or not installed on the system.`);
+      } else {
+        throw new Error(`Failed to get git diff: ${error.message}`);
+      }
+    }
+  }
