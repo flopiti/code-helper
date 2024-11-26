@@ -9,7 +9,7 @@ export function startApi(): Promise<string> {
       if (apiProcess) {
         return reject(new Error('API is already running.'));
       }
-      const projectPath = getProjectPath('natetrystuff-api');
+      const projectPath = `${getProjectPath('natetrystuff-api')}/natetrystuff`;
       apiProcess = exec(
         'mvn spring-boot:run -Dspring-boot.run.profiles=local',
         { cwd: projectPath },
