@@ -132,4 +132,19 @@ router.get('/create-branch', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/check-api-status', (req: Request, res: Response) => {
+  res.status(200).json({ message: "API is running." });
+}
+);
+
+router.get('/stop-api', (req: Request, res: Response) => {
+  res.status(200).json({ message: "API stopped successfully." });
+}
+);
+
+router.get('/start-api', (req: Request, res: Response) => {
+  res.status(200).json({ message: "API started successfully." });
+}
+);
+
 export default router;
