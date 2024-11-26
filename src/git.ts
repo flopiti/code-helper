@@ -11,3 +11,12 @@ export async function sendIt(project: string, commitMessage: string, branchName:
       throw new Error(`Failed to send changes: ${error.message}`);
     }
   }
+
+  export async function checkoutNewBranch(project: string, branchName: string): Promise<void> {
+    try {
+      const projectPath = getProjectPath(project);
+      await execAsync(`git checkout -b ${branchName}`, { cwd: projectPath });
+    } catch (error: any) {
+      throw new Error(`Failed to create new branch: ${branchName}, error: ${error.message}`);
+    }
+  }

@@ -9,9 +9,8 @@ import {
   getGitHeadRef,
   getGitDiff,
   switchAndPullMain,
-  checkoutNewBranch,
 } from "./functions";
-import { sendIt } from "./git";
+import { checkoutNewBranch, sendIt } from "./git";
 const router = express.Router();
 
 router.get(`/get-file`, async (req: any, res) => {
