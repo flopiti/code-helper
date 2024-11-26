@@ -1,10 +1,9 @@
-import { readFileSync, writeFileSync, constants, PathLike, Dirent } from "fs";
-import fs, { access, mkdir, stat } from "fs/promises";
+import { PathLike, Dirent } from "fs";
+import fs, { access, mkdir } from "fs/promises";
 import path from "path";
 import { config } from 'dotenv';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { dir } from "console";
 
 config();
 
@@ -12,9 +11,9 @@ const apiProjectPath = process.env.API_PROJECT_PATH || '';
 const webProjectPath = process.env.WEB_PROJECT_PATH || '';
 const codeHelperPath = process.env.CODE_HELPER_PATH || '';
 
-const execAsync = promisify(exec);
+export const execAsync = promisify(exec);
 
-function getProjectPath(project: string): string {
+export function getProjectPath(project: string): string {
   let projectPath;
   switch (project) {
     case 'natetrystuff-api':
@@ -33,37 +32,7 @@ function getProjectPath(project: string): string {
   return projectPath;
 }
 
-// New function to get all file descriptions by counting FEAT and DESC comments
-export async function getAllFileDescriptions(project: string) {
-  try {
-    const dirPath = getProjectPath(project);
-    if (!dirPath) {
-      throw new Error('Project path could not be determined');
-    }
 
-    const allFiles = await getAllFiles(dirPath);
-    const fileDescriptions = [];
-
-    for (const filename of allFiles) {
-      const content = await fs.readFile(filename, 'utf-8');
-
-      const featComments = (content.match(/\/\/FEAT/g) || []).length;
-      const descComments = (content.match(/\/\/DESC/g) || []).length;
-
-      fileDescriptions.push({
-        id: path.basename(filename, path.extname(filename)),
-        name: filename.replace(`${dirPath}/`, ''),
-        FEAT: featComments,
-        DESC: descComments
-      });
-    }
-
-    return fileDescriptions;
-  } catch (error) {
-    console.error('Error processing file descriptions:', error);
-    throw error;
-  }
-}
 
 export async function getProjectsInPath(dirPath: string) {
   try {
@@ -91,7 +60,6 @@ export async function getProjectsInPath(dirPath: string) {
     }
   }
 }
-
 
 const getProjectType = async (projectPath: string) => {
   try {
@@ -234,9 +202,7 @@ export async function getAllFiles(dirPath: any, arrayOfFiles: any[] = []) {
 }
 
 export async function getAllFilesSpringBoot(dirPath: any) {
-  console.log(dirPath)
   const files = await getAllFiles(dirPath);
-  console.log(apiProjectPath)
   const cleanedFiles = files.map((file) => file.replace(apiProjectPath, ''));
   return [
     ...cleanedFiles
@@ -260,115 +226,3 @@ export async function getAllFilesNextJs(dirPath: any) {
   const selectedFiles = [...cleanedFiles].filter(Boolean);
   return selectedFiles;
 }
-
-export async function getGitDiff(project: string): Promise<string> {
-  console.log('we are getting the git diff');
-  try {
-    const projectPath = getProjectPath(project);
-    console.log(`projectPath: ${projectPath}`);
-    const { stdout, stderr } = await execAsync('git diff', { cwd: projectPath });
-
-    console.log(`stdout: ${stdout}`);
-    if (stderr) {
-      throw new Error(`Git diff error: ${stderr}`);
-    }
-
-    return stdout;
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      throw new Error(`Git not found or not installed on the system.`);
-    } else {
-      throw new Error(`Failed to get git diff: ${error.message}`);
-    }
-  }
-}
-
-export async function sendIt(project: string, commitMessage: string, branchName: string): Promise<void> {
-  console.log('Starting the git push process');
-  console.log(`Project: ${project}`);
-  console.log(`Commit Message: ${commitMessage}`);
-  console.log(`Branch: ${branchName}`);
-  try {
-    const projectPath = getProjectPath(project);
-    console.log(`Project path resolved to: ${projectPath}`);
-
-    console.log('Executing git add .');
-    const addResult = await execAsync('git add .', { cwd: projectPath });
-    console.log(`git add output: ${addResult.stdout}`);
-
-    console.log(`Executing git commit -m "${commitMessage}"`);
-    const commitResult = await execAsync(`git commit -m "${commitMessage}"`, { cwd: projectPath });
-    console.log(`git commit output: ${commitResult.stdout}`);
-
-    console.log(`Executing git push origin ${branchName}`);
-    const pushResult = await execAsync(`git push origin ${branchName}`, { cwd: projectPath });
-    console.log(`git push output: ${pushResult.stdout}`);
-
-    console.log('Changes successfully added, committed, and pushed');
-  } catch (error: any) {
-    console.error(`Error during git push process: ${error.message}`);
-    throw new Error(`Failed to send changes: ${error.message}`);
-  }
-}
-
-export async function switchAndPullMain(project: string): Promise<void> {
-  console.log('we are switching and pulling main');
-  try {
-    const projectPath = getProjectPath(project);
-    console.log(`projectPath: ${projectPath}`);
-    await execAsync('git switch main', { cwd: projectPath });
-    await execAsync('git pull origin main', { cwd: projectPath });
-    console.log('Switched to main and pulled the latest updates');
-  } catch (error: any) {
-    throw new Error(`Failed to switch or pull from main: ${error.message}`);
-  }
-}
-
-export async function checkoutNewBranch(project: string, branchName: string): Promise<void> {
-  console.log(`Creating and switching to a new branch: ${branchName}`);
-  try {
-    const projectPath = getProjectPath(project);
-    console.log(`projectPath: ${projectPath}`);
-    await execAsync(`git checkout -b ${branchName}`, { cwd: projectPath });
-    console.log(`Created and switched to new branch: ${branchName}`);
-  } catch (error: any) {
-    throw new Error(`Failed to create new branch: ${branchName}, error: ${error.message}`);
-  }
-}
-
-export async function findDescComments(dirPath: string, project:string) {
-  try {
-    const allFiles = await getAllFiles(dirPath);
-    const descCommentsFiles: { filename: string, comment: string }[] = [];
-
-    for (let file of allFiles) {
-      const fileContents = await fs.readFile(file, 'utf-8');
-      const lines = fileContents.split('\n');
-      for (let line of lines) {
-        const commentIndex = line.indexOf('//DESC:');
-        if (commentIndex !== -1) {
-          const comment = line.substring(commentIndex + 7).trim();
-
-          // Cleaning filename based on project type
-          let cleanedFileName = file;
-          if (project=='natetrystuff-api') {
-            cleanedFileName = file.replace(apiProjectPath, '');
-          } else if (project=='natetrystuff-web') {
-            cleanedFileName = file.replace(webProjectPath, '');
-          }
-
-          descCommentsFiles.push({ filename: cleanedFileName, comment });
-        }
-      }
-    }
-
-    return descCommentsFiles;
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      throw new Error(`Error finding files or comments in: ${dirPath}, error: ${error.message}`);
-    } else {
-      throw error;
-    }
-  }
-}
-
