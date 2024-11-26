@@ -33,37 +33,7 @@ function getProjectPath(project: string): string {
   return projectPath;
 }
 
-// New function to get all file descriptions by counting FEAT and DESC comments
-export async function getAllFileDescriptions(project: string) {
-  try {
-    const dirPath = getProjectPath(project);
-    if (!dirPath) {
-      throw new Error('Project path could not be determined');
-    }
 
-    const allFiles = await getAllFiles(dirPath);
-    const fileDescriptions = [];
-
-    for (const filename of allFiles) {
-      const content = await fs.readFile(filename, 'utf-8');
-
-      const featComments = (content.match(/\/\/FEAT/g) || []).length;
-      const descComments = (content.match(/\/\/DESC/g) || []).length;
-
-      fileDescriptions.push({
-        id: path.basename(filename, path.extname(filename)),
-        name: filename.replace(`${dirPath}/`, ''),
-        FEAT: featComments,
-        DESC: descComments
-      });
-    }
-
-    return fileDescriptions;
-  } catch (error) {
-    console.error('Error processing file descriptions:', error);
-    throw error;
-  }
-}
 
 export async function getProjectsInPath(dirPath: string) {
   try {
