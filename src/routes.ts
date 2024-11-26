@@ -119,4 +119,5 @@ router.get('/create-branch', async (req: any, res) => {
     res.status(500).json({ error: 'Failed to create new branch.' });
   }
 });
+
 export default router;
