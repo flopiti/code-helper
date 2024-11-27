@@ -42,8 +42,8 @@ export function startApi(): Promise<string> {
     });
   }
   
-  export function checkApiStatus(): string {
-    return apiProcess ? 'API is running.' : 'API is not running.';
+  export function checkApiStatus(): boolean {
+    return apiProcess !== null;
   }
 
   export function compileApi(): Promise<string> {

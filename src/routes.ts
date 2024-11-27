@@ -134,8 +134,8 @@ router.get('/create-branch', async (req: Request, res: Response) => {
 });
 
 router.get('/check-api-status', (req: Request, res: Response) => {
-  const status = checkApiStatus();
-  res.status(200).json({ status });
+  const isRunning = checkApiStatus();
+  res.status(200).json({ isRunning });
 } 
 );
 
