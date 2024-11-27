@@ -157,9 +157,14 @@ router.get('/start-api', (req: Request, res: Response) => {
 });
 });
 
-router.get('/compile-api', (req: Request, res: Response) => {
-  const status = compileApi();
-  res.status(200).json({ status });
+router.get('/compile-api', async (req: Request, res: Response) => {
+  try {
+    const status = await compileApi();
+    res.status(200).json({ status });
+  } catch (error) {
+    console.error("Error handling compile-api request:", error);
+    res.status(500).json({ error: "Failed to compile API." });
+  }
 });
 
 export default router;
