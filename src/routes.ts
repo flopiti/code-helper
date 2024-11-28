@@ -9,7 +9,7 @@ import {
   getGitHeadRef,
 } from "./functions";
 import { checkoutNewBranch, getGitDiff, sendIt, switchAndPullMain } from "./git";
-import { checkApiStatus, stopApi, startApi, compileApi } from "./dev-environments";
+import { checkApiStatus, stopApi, startApi, compileApi, checkWebStatus, compileWeb, startWeb, stopWeb } from "./dev-environments";
 
 const router = express.Router();
 
@@ -164,6 +164,36 @@ router.get('/compile-api', async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error handling compile-api request:", error);
     res.status(500).json({ error: "Failed to compile API." });
+  }
+});
+router.get('/check-web-status', (req: Request, res: Response) => {
+  const isRunning = checkWebStatus();
+  res.status(200).json({ isRunning });
+});
+
+router.get('/stop-web', (req: Request, res: Response) => {
+  stopWeb().then((response) => {
+    res.status(200).json({ message: response });
+  }).catch((error) => {
+    res.status(500).json({ error: error.message });
+  });
+});
+
+router.get('/start-web', (req: Request, res: Response) => {
+  startWeb().then((response) => {
+    res.status(200).json({ message: response });
+  }).catch((error) => {
+    res.status(500).json({ error: error.message });
+  });
+});
+
+router.get('/compile-web', async (req: Request, res: Response) => {
+  try {
+    const status = await compileWeb();
+    res.status(200).json({ status });
+  } catch (error) {
+    console.error("Error handling compile-web request:", error);
+    res.status(500).json({ error: "Failed to compile Web." });
   }
 });
 
