@@ -8,7 +8,7 @@ import {
   getAllFiles,
   getGitHeadRef,
 } from "./functions";
-import { checkoutNewBranch, getGitDiff, sendIt, switchAndPullMain } from "./git";
+import { checkoutNewBranch, getAllMainFiles, getGitDiff, sendIt, switchAndPullMain } from "./git";
 import { checkApiStatus, stopApi, startApi, compileApi, checkWebStatus, compileWeb, startWeb, stopWeb } from "./dev-environments";
 
 const router = express.Router();
@@ -166,6 +166,7 @@ router.get('/compile-api', async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to compile API." });
   }
 });
+
 router.get('/check-web-status', (req: Request, res: Response) => {
   const isRunning = checkWebStatus();
   res.status(200).json({ isRunning });
@@ -195,6 +196,12 @@ router.get('/compile-web', async (req: Request, res: Response) => {
     console.error("Error handling compile-web request:", error);
     res.status(500).json({ error: "Failed to compile Web." });
   }
+});
+
+router.get('/get-all-files-main', async (req: Request, res: Response) => {
+  const { project } = req.query as { project: string };
+  const files = await getAllMainFiles(project);
+  res.status(200).json(files);
 });
 
 export default router;
