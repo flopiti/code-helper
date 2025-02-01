@@ -71,19 +71,24 @@ export async function getAllMainFiles(project: string): Promise<string[]> {
         console.warn(`.gitignore file not found or could not be read: ${error instanceof Error ? error.message : error}`);
     }
 
-    console.log(gitignorePatterns);
-
+    const filteredGitignorePatterns = gitignorePatterns.map(pattern => {
+        let newPattern = pattern.startsWith('/') ? pattern.slice(1) : pattern;
+        return newPattern.endsWith('/') ? newPattern.slice(0, -1) : newPattern;
+    });
+    
+    filteredGitignorePatterns.push('.git');
+    console.log(filteredGitignorePatterns);
     try {
         const files: string[] = await fg('**/*', {
             cwd: projectPath,
-            ignore: gitignorePatterns.map(pattern => pattern.startsWith('/') ? pattern.slice(1) : pattern),
+            ignore: filteredGitignorePatterns,
             onlyFiles: true,
             followSymbolicLinks: false,
             deep: 10,
             dot: true
         });
         const allFiles = files.map((file: string) => path.join(projectPath, file));
-        console.log(allFiles);
+        console.log(allFiles.length);
         return allFiles;
     } catch (error) {
         throw new Error(`Failed to retrieve files: ${error instanceof Error ? error.message : error}`);
